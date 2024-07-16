@@ -1,22 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>org.sonarsource.java</groupId>
-    <artifactId>docs</artifactId>
-    <version>8.2.0-SNAPSHOT</version>
-  </parent>
 
+  <!-- Change this groupId to your own organization groupId -->
+  <groupId>com.jnyh.sonartool</groupId>
 
-  <artifactId>java-custom-rules-example</artifactId>
+  <!-- Change this artifactId to your own organization artifactId -->
+  <artifactId>jnyh-rules</artifactId>
+
+  <version>1.0.0-SNAPSHOT</version>
+
   <packaging>sonar-plugin</packaging>
 
-  <name>SonarQube Java :: Documentation :: Custom Rules Example</name>
-  <description>Java Custom Rules Example for SonarQube</description>
+  <!--  Change the name of the plugin here -->
+  <name>SonarQube Java :: jnyh-rules</name>
+
+  <!--  Change the description of the plugin here -->
+  <description>DIY Rules for JNYH</description>
 
   <properties>
+    <sonar.plugin.api.version>10.1.0.809</sonar.plugin.api.version>
+    <sonarjava.version>7.29.0.34131</sonarjava.version>
+    <!-- Don't forget to update this version of JaCoCo -->
     <jacoco.version>0.8.10</jacoco.version>
+    <!-- Use UTF-8 for all resources -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!-- Make sure to be compatible with java 8 -->
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.release>17</maven.compiler.release>
   </properties>
 
   <dependencies>
@@ -24,60 +35,61 @@
     <dependency>
       <groupId>org.sonarsource.api.plugin</groupId>
       <artifactId>sonar-plugin-api</artifactId>
-      <version>9.9.0.229</version>
+      <version>${sonar.plugin.api.version}</version>
       <scope>provided</scope>
     </dependency>
+
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
+      <version>1.7.30</version>
       <scope>provided</scope>
     </dependency>
+
     <dependency>
       <groupId>org.sonarsource.java</groupId>
       <artifactId>sonar-java-plugin</artifactId>
       <type>sonar-plugin</type>
-      <version>${project.version}</version>
+      <version>${sonarjava.version}</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.sonarsource.analyzer-commons</groupId>
       <artifactId>sonar-analyzer-commons</artifactId>
+      <version>1.24.0.965</version>
     </dependency>
 
     <!-- TEST sources dependencies -->
     <dependency>
       <groupId>org.sonarsource.java</groupId>
       <artifactId>java-checks-testkit</artifactId>
-      <version>${project.version}</version>
+      <version>${sonarjava.version}</version>
       <scope>test</scope>
     </dependency>
 
+    <!-- version to be specified manually -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
+      <version>5.7.0</version>
       <scope>test</scope>
     </dependency>
 
+    <!-- version to be specified manually -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-migrationsupport</artifactId>
+      <version>5.7.0</version>
       <scope>test</scope>
     </dependency>
 
+    <!-- version to be specified manually -->
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
+      <version>3.23.1</version>
       <scope>test</scope>
-    </dependency>
-      <dependency>
-          <groupId>junit</groupId>
-          <artifactId>junit</artifactId>
-      </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <scope>compile</scope>
     </dependency>
   </dependencies>
 
@@ -94,7 +106,7 @@
           <sonarLintSupported>true</sonarLintSupported>
           <skipDependenciesPackaging>true</skipDependenciesPackaging>
           <pluginApiMinVersion>9.14.0.375</pluginApiMinVersion>
-          <requirePlugins>java:${project.version}</requirePlugins>
+          <requirePlugins>java:${sonarjava.version}</requirePlugins>
           <requiredForLanguages>java</requiredForLanguages>
         </configuration>
       </plugin>
@@ -102,6 +114,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
+        <version>3.2.4</version>
         <configuration>
         </configuration>
         <executions>
@@ -117,8 +130,9 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.0</version>
         <configuration>
-          <source>17</source>
+          <source>21</source>
           <target>17</target>
         </configuration>
       </plugin>
@@ -203,13 +217,6 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>
-      <plugin>
-        <groupId>com.mycila</groupId>
-        <artifactId>license-maven-plugin</artifactId>
-        <configuration>
-          <header>${project.basedir}/src/main/resources/license-header.txt</header>
-        </configuration>
       </plugin>
     </plugins>
   </build>

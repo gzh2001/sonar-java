@@ -20,30 +20,16 @@ class MyJavaFileCheckRegistrarTest {
     registrar.register(context);
 
     assertThat(context.mainRuleKeys).extracting(RuleKey::toString).containsExactly(
-      "mycompany-java:SpringControllerRequestMappingEntity",
-      "mycompany-java:AvoidAnnotation",
-      "mycompany-java:AvoidBrandInMethodNames",
-      "mycompany-java:AvoidMethodDeclaration",
-      "mycompany-java:AvoidSuperClass",
-      "mycompany-java:AvoidTreeList",
-      "mycompany-java:AvoidMethodWithSameTypeInArgument",
-      "mycompany-java:SecurityAnnotationMandatory");
+      "mycompany-java:HardEncodedWebURICheck");
 
     assertThat(context.mainCheckClasses).extracting(Class::getSimpleName).containsExactly(
-      "SpringControllerRequestMappingEntityRule",
-      "AvoidAnnotationRule",
-      "AvoidBrandInMethodNamesRule",
-      "AvoidMethodDeclarationRule",
-      "AvoidSuperClassRule",
-      "AvoidTreeListRule",
-      "MyCustomSubscriptionRule",
-      "SecurityAnnotationMandatoryRule");
+      "HardEncodedWebURICheck");
 
     assertThat(context.testRuleKeys).extracting(RuleKey::toString).containsExactly(
-      "mycompany-java:NoIfStatementInTests");
+      );
 
     assertThat(context.testCheckClasses).extracting(Class::getSimpleName).containsExactly(
-      "NoIfStatementInTestsRule");
+      );
   }
 
 }
