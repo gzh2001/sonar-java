@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
-import org.sonar.samples.java.model.ExpressionUtils ;
+import org.sonar.samples.java.model.ExpressionUtils;
 import org.sonar.samples.java.model.LiteralUtils;
 import org.sonar.plugins.java.api.IssuableSubscriptionVisitor;
 import org.sonar.plugins.java.api.semantic.MethodMatchers;
@@ -50,7 +50,7 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
   @Override
   public List<Tree.Kind> nodesToVisit() {
     // 返回此规则感兴趣的节点类型
-    return Arrays.asList(Tree.Kind.NEW_CLASS, Tree.Kind.VARIABLE, Tree.Kind.ASSIGNMENT);
+    return Arrays.asList(Tree.Kind.NEW_CLASS, Tree.Kind.VARIABLE, Tree.Kind.ASSIGNMENT, Tree.Kind.STRING_LITERAL);
   }
 
   @Override
@@ -60,8 +60,10 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
       checkNewClassTree((NewClassTree) tree);
     } else if (tree.is(Tree.Kind.VARIABLE)) {
       checkVariable((VariableTree) tree);
-    } else {
+    } else if (tree.is(Tree.Kind.ASSIGNMENT)) {
       checkAssignment((AssignmentExpressionTree) tree);
+    } else if (tree.is(Tree.Kind.STRING_LITERAL)) {
+      checkStringLiteral((LiteralTree) tree);
     }
   }
 
@@ -83,6 +85,13 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
     // 检查赋值表达式是否涉及文件名或路径变量，并且不属于注释的一部分
     if (isFileNameVariable(getVariableIdentifier(tree)) && !isPartOfAnnotation(tree)) {
       checkExpression(tree.expression());
+    }
+  }
+
+  private void checkStringLiteral(LiteralTree tree) {
+    // 检查字符串字面值是否包含硬编码的URI
+    if (isHardcodedURI(tree)) {
+      reportHardcodedURI(tree);
     }
   }
 

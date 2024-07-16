@@ -20,7 +20,7 @@ class MyJavaFileCheckRegistrarTest {
     registrar.register(context);
 
     assertThat(context.mainRuleKeys).extracting(RuleKey::toString).containsExactly(
-      "mycompany-java:HardEncodedWebURICheck");
+      "jnyh:HardEncodedWebURICheck");
 
     assertThat(context.mainCheckClasses).extracting(Class::getSimpleName).containsExactly(
       "HardEncodedWebURICheck");
