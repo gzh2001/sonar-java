@@ -1,5 +1,5 @@
 {
-  "title": "URIs and IPs should not be hardcoded",
+  "title": "Web URIs should not be hardcoded",
   "type": "CODE_SMELL",
   "code": {
     "impacts": {
