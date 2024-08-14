@@ -20,6 +20,8 @@ import org.sonar.plugins.java.api.tree.MemberSelectExpressionTree;
 import org.sonar.plugins.java.api.tree.NewClassTree;
 import org.sonar.plugins.java.api.tree.Tree;
 import org.sonar.plugins.java.api.tree.VariableTree;
+import org.sonar.plugins.java.api.semantic.Symbol;
+import org.sonar.plugins.java.api.semantic.Symbol.TypeSymbol;
 
 import static org.sonar.plugins.java.api.semantic.MethodMatchers.ANY;
 
@@ -89,6 +91,16 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
   }
 
   private void checkStringLiteral(LiteralTree tree) {
+    Tree parent = tree.parent();
+    if (parent != null) {
+      // 判断父节点的类型并输出相关信息
+      if (parent instanceof NewClassTree) {
+        NewClassTree newClassTree = (NewClassTree) parent;
+        Symbol.TypeSymbol typeSymbol = newClassTree.symbolType().symbol();
+        if(typeSymbol.name().equals("javax.xml.namespace.QName")){return ;};
+      }
+    }
+
     // 检查字符串字面值是否包含硬编码的URI
     if (isHardcodedURI(tree)) {
       reportHardcodedURI(tree);
