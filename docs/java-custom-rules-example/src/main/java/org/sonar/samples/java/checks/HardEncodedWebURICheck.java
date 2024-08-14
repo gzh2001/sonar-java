@@ -97,6 +97,8 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
       if (parent instanceof NewClassTree) {
         NewClassTree newClassTree = (NewClassTree) parent;
         Symbol.TypeSymbol typeSymbol = newClassTree.symbolType().symbol();
+        System.out.println(typeSymbol.name());
+
         if(typeSymbol.name().equals("javax.xml.namespace.QName")){return ;};
       }
     }
