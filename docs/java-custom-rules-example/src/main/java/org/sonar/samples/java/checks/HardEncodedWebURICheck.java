@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.LoggerFactory;
 import org.sonar.check.Rule;
 import org.sonar.samples.java.model.ExpressionUtils;
 import org.sonar.samples.java.model.LiteralUtils;
@@ -26,7 +29,10 @@ import org.sonar.plugins.java.api.semantic.Symbol.TypeSymbol;
 import static org.sonar.plugins.java.api.semantic.MethodMatchers.ANY;
 
 @Rule(key = "HardEncodedWebURICheck")
+@Slf4j
 public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
+
+
   private static final String JAVA_LANG_STRING = "java.lang.String";
   private static final MethodMatchers MATCHERS = MethodMatchers.or(
     MethodMatchers.create()
@@ -93,12 +99,13 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
   private void checkStringLiteral(LiteralTree tree) {
     Tree parent = tree.parent();
     if (parent != null) {
+      log.info("==============={}", parent.toString());
       // 判断父节点的类型并输出相关信息
       if (parent instanceof NewClassTree) {
         NewClassTree newClassTree = (NewClassTree) parent;
         Symbol.TypeSymbol typeSymbol = newClassTree.symbolType().symbol();
         System.out.println(typeSymbol.name());
-
+        log.info("===================typeSymbol.name()={}",typeSymbol.name());
         if(typeSymbol.name().equals("javax.xml.namespace.QName")){return ;};
       }
     }
