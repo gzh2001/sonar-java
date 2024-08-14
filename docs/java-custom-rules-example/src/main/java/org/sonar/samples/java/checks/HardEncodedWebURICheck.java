@@ -99,7 +99,8 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
   private void checkStringLiteral(LiteralTree tree) {
     Tree parent = tree.parent();
     if (parent != null) {
-      log.info("==============={}", parent.toString());
+      log.info("==============={}==={}", tree.value(), parent.toString());
+      log.info("==============={}",tree.token());
       // 判断父节点的类型并输出相关信息
       if (parent instanceof NewClassTree) {
         NewClassTree newClassTree = (NewClassTree) parent;
