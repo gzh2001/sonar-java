@@ -91,18 +91,18 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
     Tree parent = tree.parent();
     if (parent != null) {
       try{
-        if(tree.value().equals("http://www.git123qname.com")){
+//        if(tree.value().equals("http://www.git123qname.com")){
 //          log.info(((ClassTree) tree.kind().getAssociatedInterface()));
-          while (parent != null){
-            log.info("===================={}",parent.toString());
-            parent = parent.parent();
-          }
-
-        }else{
-          log.error("==================={}",tree.value());
-        }
+//          while (parent != null){
+//            log.info("===================={}",parent.toString());
+//            parent = parent.parent();
+//          }
+          log.info("==={}==={}==={}",parent.toString(),parent.parent().toString(),parent.parent().parent().toString());
+//        }else{
+//          log.error("==================={}",tree.value());
+//        }
       }catch (Exception e){
-
+        log.error(e.getMessage());
       }
 //      log.info("==============={}==={}", tree.value(), parent.toString());
 //      log.info("==============={}",tree.token());
