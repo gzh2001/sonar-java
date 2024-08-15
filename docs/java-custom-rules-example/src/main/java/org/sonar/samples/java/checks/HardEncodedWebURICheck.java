@@ -115,7 +115,7 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
         }
 //        System.out.println(typeSymbol.name());
         log.info("===================typeSymbol.name()={}",typeSymbol.name());
-        if(typeSymbol.name().equals("javax.xml.namespace.QName")){return ;};
+        if(typeSymbol.name().equals("QName")){return ;};
       }
     }
 
