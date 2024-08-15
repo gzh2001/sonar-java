@@ -108,8 +108,11 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
 //      log.info("==============={}",tree.token());
       // 判断父节点的类型并输出相关信息
       if (parent.parent() instanceof NewClassTree) {
-        NewClassTree newClassTree = (NewClassTree) parent;
-        Symbol.TypeSymbol typeSymbol = newClassTree.symbolType().symbol();
+        NewClassTree newClassTree = (NewClassTree) parent.parent();
+        TypeSymbol typeSymbol = null;
+        if (newClassTree != null) {
+          typeSymbol = newClassTree.symbolType().symbol();
+        }
 //        System.out.println(typeSymbol.name());
         log.info("===================typeSymbol.name()={}",typeSymbol.name());
         if(typeSymbol.name().equals("javax.xml.namespace.QName")){return ;};
