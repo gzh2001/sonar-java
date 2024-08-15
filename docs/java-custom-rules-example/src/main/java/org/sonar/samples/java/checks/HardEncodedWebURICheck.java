@@ -94,10 +94,12 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
         if(tree.value().equals("http://www.git123qname.com")){
 //          log.info(((ClassTree) tree.kind().getAssociatedInterface()));
           while (parent != null){
-            log.info(parent.toString());
+            log.info("===================={}",parent.toString());
             parent = parent.parent();
           }
 
+        }else{
+          log.error("==================={}",tree.value());
         }
       }catch (Exception e){
 
