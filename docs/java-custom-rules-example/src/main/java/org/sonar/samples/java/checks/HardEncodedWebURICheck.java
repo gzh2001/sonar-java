@@ -97,7 +97,7 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
 //            log.info("===================={}",parent.toString());
 //            parent = parent.parent();
 //          }
-          log.info("==={}==={}==={}",parent.toString(),parent.parent().toString(),parent.parent().parent().toString());
+          log.info("{}==={}==={}==={}",tree.value(),parent.toString(),parent.parent().toString(),parent.parent().parent().toString());
 //        }else{
 //          log.error("==================={}",tree.value());
 //        }
