@@ -9,20 +9,11 @@ import javax.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.LoggerFactory;
 import org.sonar.check.Rule;
+import org.sonar.plugins.java.api.tree.*;
 import org.sonar.samples.java.model.ExpressionUtils;
 import org.sonar.samples.java.model.LiteralUtils;
 import org.sonar.plugins.java.api.IssuableSubscriptionVisitor;
 import org.sonar.plugins.java.api.semantic.MethodMatchers;
-import org.sonar.plugins.java.api.tree.AssignmentExpressionTree;
-import org.sonar.plugins.java.api.tree.BaseTreeVisitor;
-import org.sonar.plugins.java.api.tree.BinaryExpressionTree;
-import org.sonar.plugins.java.api.tree.ExpressionTree;
-import org.sonar.plugins.java.api.tree.IdentifierTree;
-import org.sonar.plugins.java.api.tree.LiteralTree;
-import org.sonar.plugins.java.api.tree.MemberSelectExpressionTree;
-import org.sonar.plugins.java.api.tree.NewClassTree;
-import org.sonar.plugins.java.api.tree.Tree;
-import org.sonar.plugins.java.api.tree.VariableTree;
 import org.sonar.plugins.java.api.semantic.Symbol;
 import org.sonar.plugins.java.api.semantic.Symbol.TypeSymbol;
 
@@ -99,13 +90,25 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
   private void checkStringLiteral(LiteralTree tree) {
     Tree parent = tree.parent();
     if (parent != null) {
-      log.info("==============={}==={}", tree.value(), parent.toString());
-      log.info("==============={}",tree.token());
+      try{
+        if(tree.value().equals("http://www.git123qname.com")){
+//          log.info(((ClassTree) tree.kind().getAssociatedInterface()));
+          while (parent != null){
+            log.info(parent.toString());
+            parent = parent.parent();
+          }
+
+        }
+      }catch (Exception e){
+
+      }
+//      log.info("==============={}==={}", tree.value(), parent.toString());
+//      log.info("==============={}",tree.token());
       // 判断父节点的类型并输出相关信息
       if (parent instanceof NewClassTree) {
         NewClassTree newClassTree = (NewClassTree) parent;
         Symbol.TypeSymbol typeSymbol = newClassTree.symbolType().symbol();
-        System.out.println(typeSymbol.name());
+//        System.out.println(typeSymbol.name());
         log.info("===================typeSymbol.name()={}",typeSymbol.name());
         if(typeSymbol.name().equals("javax.xml.namespace.QName")){return ;};
       }
