@@ -97,7 +97,7 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
 //            log.info("===================={}",parent.toString());
 //            parent = parent.parent();
 //          }
-          log.info("{}==={}==={}==={}",tree.value(),parent.toString(),parent.parent().toString(),parent.parent().parent().toString());
+//          log.info("{}==={}==={}==={}",tree.value(),parent.toString(),parent.parent().toString(),parent.parent().parent().toString());
 //        }else{
 //          log.error("==================={}",tree.value());
 //        }
@@ -107,7 +107,7 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
 //      log.info("==============={}==={}", tree.value(), parent.toString());
 //      log.info("==============={}",tree.token());
       // 判断父节点的类型并输出相关信息
-      if (parent instanceof NewClassTree) {
+      if (parent.parent() instanceof NewClassTree) {
         NewClassTree newClassTree = (NewClassTree) parent;
         Symbol.TypeSymbol typeSymbol = newClassTree.symbolType().symbol();
 //        System.out.println(typeSymbol.name());
