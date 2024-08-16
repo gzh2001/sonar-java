@@ -100,24 +100,6 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
      */
     Tree parent = tree.parent();
     if (parent != null) {
-      try{
-//        if(tree.value().equals("http://www.git123qname.com")){
-//          log.info(((ClassTree) tree.kind().getAssociatedInterface()));
-//          while (parent != null){
-//            log.info("===================={}",parent.toString());
-//            parent = parent.parent();
-//          }
-//          log.info("{}==={}==={}==={}",tree.value(),parent.toString(),parent.parent().toString(),parent.parent().parent().toString());
-//        }else{
-//          log.error("==================={}",tree.value());
-//        }
-      }catch (Exception e){
-        log.error(e.getMessage());
-      }
-//      log.info("==============={}==={}", tree.value(), parent.toString());
-//      log.info("==============={}",tree.token());
-
-
       // 判断父节点的类型并输出相关信息
       if (parent.parent() instanceof NewClassTree) {
         NewClassTree newClassTree = (NewClassTree) parent.parent();
@@ -126,13 +108,13 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
           typeSymbol = newClassTree.symbolType().symbol();
         }
 //        System.out.println(typeSymbol.name());
-        log.info("===================typeSymbol.name()={}",typeSymbol.name());
+        log.debug("===================typeSymbol.name()={}",typeSymbol.name());
         if(typeSymbol.name().equals("QName")){return ;};
       } else if (Objects.requireNonNull(parent.parent()).parent() instanceof AnnotationTree) {
         // 校验注解
         AnnotationTree annotation = (AnnotationTree) parent.parent().parent();
         String annotationType = annotation.annotationType().toString();
-        log.info("annotationType={}",annotationType);
+        log.debug("===========annotationType={}",annotationType);
         if (annotationType.equals("WebService") || annotationType.equals("XmlElementDecl")) {
           return;
         }
