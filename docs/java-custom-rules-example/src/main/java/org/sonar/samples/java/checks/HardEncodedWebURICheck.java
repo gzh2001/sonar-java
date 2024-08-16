@@ -133,7 +133,7 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
         AnnotationTree annotation = (AnnotationTree) parent.parent().parent();
         String annotationType = annotation.annotationType().toString();
         log.info("annotationType={}",annotationType);
-        if (annotationType.equals(WebService.class.getName()) || annotationType.equals(XmlElementDecl.class.getName())) {
+        if (annotationType.equals("WebService") || annotationType.equals("XmlElementDecl")) {
           return;
         }
       }
