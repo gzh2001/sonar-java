@@ -2,9 +2,12 @@ package org.sonar.samples.java.checks;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import javax.jws.WebService;
+import javax.xml.bind.annotation.XmlElementDecl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.LoggerFactory;
@@ -88,6 +91,13 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
   }
 
   private void checkStringLiteral(LiteralTree tree) {
+    /*
+     * 在字符串字面量扫描阶段进行过滤（有关WSDL导致的链接大多在该入口）
+     * 关于QName -- 从链接字符串往上的树节点大多类似org.sonar.java.ast.parser.ArgumentListTreeImpl => org.sonar.java.model.expression.NewClassTreeImpl => org.sonar.java.model.declaration.VariableTreeImpl
+     *              如果NewClassTree节点中，新建的类类名为QName则跳过扫描
+     * 关于注解 -- 从链接字符串往上的树节点大多类似org.sonar.java.model.expression.AssignmentExpressionTreeImpl => org.sonar.java.ast.parser.ArgumentListTreeImpl => org.sonar.java.model.declaration.AnnotationTreeImpl
+     *            如果AnnotationTree节点中，注解类型为javax.jws.WebService或者javax.xml.bind.annotation.XmlElementDecl就跳过扫描
+     */
     Tree parent = tree.parent();
     if (parent != null) {
       try{
@@ -106,6 +116,8 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
       }
 //      log.info("==============={}==={}", tree.value(), parent.toString());
 //      log.info("==============={}",tree.token());
+
+
       // 判断父节点的类型并输出相关信息
       if (parent.parent() instanceof NewClassTree) {
         NewClassTree newClassTree = (NewClassTree) parent.parent();
@@ -116,6 +128,14 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
 //        System.out.println(typeSymbol.name());
         log.info("===================typeSymbol.name()={}",typeSymbol.name());
         if(typeSymbol.name().equals("QName")){return ;};
+      } else if (Objects.requireNonNull(parent.parent()).parent() instanceof AnnotationTree) {
+        // 校验注解
+        AnnotationTree annotation = (AnnotationTree) parent.parent().parent();
+        String annotationType = annotation.annotationType().toString();
+        log.info("annotationType={}",annotationType);
+        if (annotationType.equals(WebService.class.getName()) || annotationType.equals(XmlElementDecl.class.getName())) {
+          return;
+        }
       }
     }
 
