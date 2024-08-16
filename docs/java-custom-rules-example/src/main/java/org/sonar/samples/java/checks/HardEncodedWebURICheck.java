@@ -6,20 +6,14 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import javax.jws.WebService;
-import javax.xml.bind.annotation.XmlElementDecl;
-
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.LoggerFactory;
 import org.sonar.check.Rule;
 import org.sonar.plugins.java.api.tree.*;
 import org.sonar.samples.java.model.ExpressionUtils;
 import org.sonar.samples.java.model.LiteralUtils;
 import org.sonar.plugins.java.api.IssuableSubscriptionVisitor;
 import org.sonar.plugins.java.api.semantic.MethodMatchers;
-import org.sonar.plugins.java.api.semantic.Symbol;
 import org.sonar.plugins.java.api.semantic.Symbol.TypeSymbol;
-
 import static org.sonar.plugins.java.api.semantic.MethodMatchers.ANY;
 
 @Rule(key = "HardEncodedWebURICheck")
@@ -107,7 +101,6 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
         if (newClassTree != null) {
           typeSymbol = newClassTree.symbolType().symbol();
         }
-//        System.out.println(typeSymbol.name());
         log.debug("===================typeSymbol.name()={}",typeSymbol.name());
         if(typeSymbol.name().equals("QName")){return ;};
       } else if (Objects.requireNonNull(parent.parent()).parent() instanceof AnnotationTree) {
