@@ -23,11 +23,11 @@ jobs:
 
       - name: Build jnbank rules
         run: |
-          cd sonar-java/docs/java-custom-rules-example && mvn clean package -f pom_SQ_10_4_1.xml -DskipTests
+          cd docs/java-custom-rules-example && mvn clean package -f pom_SQ_10_4_1.xml -DskipTests
 
       - name: Archive JAR
         uses: actions/upload-artifact@v3
         with:
           name: jn-rules
-          path: sonar-java/docs/java-custom-rules-example/target/*.jar
+          path: docs/java-custom-rules-example/target/*.jar
 
