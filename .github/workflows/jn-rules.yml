@@ -14,7 +14,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    permissions: read-all
+#    permissions: read-all
     steps:
       - uses: actions/checkout@v2
         with:
@@ -38,12 +38,14 @@ jobs:
 
       - name: Create GitHub Release
         id: create_release
-        uses: elgohr/Github-Release-Action@v5
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag: ${{ github.ref }}
-          title: Release ${{ github.ref }}
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
 
       - name: Upload JAR to Release
         uses: actions/upload-release-asset@v1
