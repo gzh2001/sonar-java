@@ -5,6 +5,14 @@ on:
       - master
   workflow_dispatch:
 
+permissions:
+  contents: write
+  issues: write
+  packages: write
+  pull-requests: write
+  deployments: write
+
+
 jobs:
   build:
     name: Build
