@@ -53,7 +53,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: docs/java-custom-rules-example/target/*.jar
+          asset_path: sonar-java/docs/java-custom-rules-example/target/*.jar
           asset_name: jn-rules
           asset_content_type: application/java-archive
 
