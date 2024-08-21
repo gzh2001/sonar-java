@@ -1,8 +1,6 @@
 package org.sonar.samples.java.checks;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -101,14 +99,22 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
         if (newClassTree != null) {
           typeSymbol = newClassTree.symbolType().symbol();
         }
-        log.debug("===================typeSymbol.name()={}",typeSymbol.name());
+        log.info("===================typeSymbol.name()={}",typeSymbol.name());
         if(typeSymbol.name().equals("QName")){return ;};
       } else if (Objects.requireNonNull(parent.parent()).parent() instanceof AnnotationTree) {
         // 校验注解
         AnnotationTree annotation = (AnnotationTree) parent.parent().parent();
         String annotationType = annotation.annotationType().toString();
-        log.debug("===========annotationType={}",annotationType);
-        if (annotationType.equals("WebService") || annotationType.equals("XmlElementDecl")) {
+        log.info("===========annotationType={}",annotationType);
+        final Set<String> IGNORED_ANNOTATIONS = new HashSet<>(Arrays.asList(
+          "WebService",
+          "XmlElementDecl",
+          "XmlType",
+          "WebServiceClient",
+          "WebParam",
+          "XmlSchema"
+        ));
+        if (IGNORED_ANNOTATIONS.contains(annotationType)) {
           return;
         }
       }
