@@ -90,7 +90,18 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
      * 关于注解 -- 从链接字符串往上的树节点大多类似org.sonar.java.model.expression.AssignmentExpressionTreeImpl => org.sonar.java.ast.parser.ArgumentListTreeImpl => org.sonar.java.model.declaration.AnnotationTreeImpl
      *            如果AnnotationTree节点中，注解类型为javax.jws.WebService或者javax.xml.bind.annotation.XmlElementDecl就跳过扫描
      */
+    Tree p = tree.parent();
+    String msg = "Tree";
+    while (p != null) {
+      log.info("================{}===============",tree.value());
+      msg += " => " + p.toString();
+      p = p.parent();
+    }
+    log.info(msg);
+
+
     Tree parent = tree.parent();
+
     if (parent != null) {
       // 判断父节点的类型并输出相关信息
       if (parent.parent() instanceof NewClassTree) {
