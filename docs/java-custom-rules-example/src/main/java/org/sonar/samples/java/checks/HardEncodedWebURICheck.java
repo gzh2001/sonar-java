@@ -112,7 +112,8 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
           "XmlType",
           "WebServiceClient",
           "WebParam",
-          "XmlSchema"
+          "XmlSchema",
+          "javax.xml.bind.annotation.XmlSchema"
         ));
         if (IGNORED_ANNOTATIONS.contains(annotationType)) {
           return;
