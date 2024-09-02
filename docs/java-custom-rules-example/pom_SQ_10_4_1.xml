@@ -8,7 +8,7 @@
   <!-- Change this artifactId to your own organization artifactId -->
   <artifactId>jnyh-rules</artifactId>
 
-  <version>1.0.4_dubug-3</version>
+  <version>1.0.4_dubug_4</version>
 
   <packaging>sonar-plugin</packaging>
 

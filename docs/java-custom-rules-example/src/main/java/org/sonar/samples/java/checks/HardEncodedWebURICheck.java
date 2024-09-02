@@ -89,33 +89,45 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
      *              如果NewClassTree节点中，新建的类类名为QName则跳过扫描
      * 关于注解 -- 从链接字符串往上的树节点大多类似org.sonar.java.model.expression.AssignmentExpressionTreeImpl => org.sonar.java.ast.parser.ArgumentListTreeImpl => org.sonar.java.model.declaration.AnnotationTreeImpl
      *            如果AnnotationTree节点中，注解类型为javax.jws.WebService或者javax.xml.bind.annotation.XmlElementDecl就跳过扫描
+     *
+     * 注解示例：
+     * Tree => org.sonar.java.model.expression.AssignmentExpressionTreeImpl@4cecbf3e
+     * => org.sonar.java.ast.parser.ArgumentListTreeImpl@54039b8a
+     * => org.sonar.java.model.declaration.AnnotationTreeImpl@7625f4a7
+     * => org.sonar.java.model.declaration.ModifiersTreeImpl@183c6db3
+     * => org.sonar.java.model.declaration.ClassTreeImpl@1015bd66
+     * => org.sonar.java.model.JavaTree$CompilationUnitTreeImpl@3f314bad
      */
+
+//    debug代码块
     Tree p = tree.parent();
-    String msg = "Tree";
+    StringBuilder msg = new StringBuilder("Tree");
     while (p != null) {
       log.info("================{}===============",tree.value());
-      msg += " => " + p.toString();
+      msg.append(" => ").append(p);
       p = p.parent();
     }
-    log.info(msg);
-
+    log.info(msg.toString());
 
     Tree parent = tree.parent();
-
+    while (parent != null){
+      if (parent instanceof NewClassTree || parent instanceof AnnotationTree) {
+        break;
+      }
+      parent = parent.parent();
+    }
     if (parent != null) {
       // 判断父节点的类型并输出相关信息
-      if (parent.parent() instanceof NewClassTree) {
-        NewClassTree newClassTree = (NewClassTree) parent.parent();
+      if (parent instanceof NewClassTree newClassTree) {
         TypeSymbol typeSymbol = null;
-        if (newClassTree != null) {
-          typeSymbol = newClassTree.symbolType().symbol();
-        }
+        typeSymbol = newClassTree.symbolType().symbol();
         log.info("===================typeSymbol.name()={}",typeSymbol.name());
         if(typeSymbol.name().equals("QName")){return ;};
-      } else if (Objects.requireNonNull(parent.parent()).parent() instanceof AnnotationTree) {
+      } else {
         // 校验注解
-        AnnotationTree annotation = (AnnotationTree) parent.parent().parent();
-        String annotationType = annotation.annotationType().toString();
+        AnnotationTree annotation = (AnnotationTree) parent;
+//        String annotationType = annotation.annotationType().toString();
+        String annotationType = AnnotationTypeResolver.getFullAnnotationTypeName(annotation);
         log.info("===========annotationType={}",annotationType);
         final Set<String> IGNORED_ANNOTATIONS = new HashSet<>(Arrays.asList(
           "WebService",
