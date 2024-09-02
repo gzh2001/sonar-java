@@ -100,6 +100,7 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
      */
 
 //    debug代码块
+/*
     Tree p = tree.parent();
     StringBuilder msg = new StringBuilder("Tree");
     while (p != null) {
@@ -108,6 +109,8 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
       p = p.parent();
     }
     log.info(msg.toString());
+
+    */
 
     Tree parent = tree.parent();
     while (parent != null){
@@ -121,14 +124,14 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
       if (parent instanceof NewClassTree newClassTree) {
         TypeSymbol typeSymbol = null;
         typeSymbol = newClassTree.symbolType().symbol();
-        log.info("===================typeSymbol.name()={}",typeSymbol.name());
+//        log.info("===================typeSymbol.name()={}",typeSymbol.name());
         if(typeSymbol.name().equals("QName")){return ;};
       } else {
         // 校验注解
         AnnotationTree annotation = (AnnotationTree) parent;
 //        String annotationType = annotation.annotationType().toString();
         String annotationType = AnnotationTypeResolver.getFullAnnotationTypeName(annotation);
-        log.info("===========annotationType={}",annotationType);
+//        log.info("===========annotationType={}",annotationType);
         final Set<String> IGNORED_ANNOTATIONS = new HashSet<>(Arrays.asList(
           "WebService",
           "XmlElementDecl",
