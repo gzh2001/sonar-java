@@ -34,10 +34,10 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
 
   // 定义URI和IP地址的正则表达式
   private static final String SCHEME = "[a-zA-Z][a-zA-Z\\+\\.\\-]+";
-  private static final String URI_REGEX = String.format("^%s://.+", SCHEME);
   private static final String IP_REGEX = "^([0-9]{1,3}\\.){3}[0-9]{1,3}(:[0-9]{1,5})?(/.*)?$";
+  private static final String URI_REGEX = String.format("^%s://.+", SCHEME);
 
-  private static final Pattern URI_PATTERN = Pattern.compile(URI_REGEX + '|' + IP_REGEX);
+  private static final Pattern URI_PATTERN = Pattern.compile(IP_REGEX);
   private static final Pattern VARIABLE_NAME_PATTERN = Pattern.compile("filename|path", Pattern.CASE_INSENSITIVE);
   private static final Pattern PATH_DELIMETERS_PATTERN = Pattern.compile("\"/\"|\"//\"|\"\\\\\\\\\"|\"\\\\\\\\\\\\\\\\\"");
 
