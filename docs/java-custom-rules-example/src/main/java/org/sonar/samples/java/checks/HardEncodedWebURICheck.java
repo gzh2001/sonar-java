@@ -40,6 +40,9 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
   private static final Pattern URI_PATTERN = Pattern.compile(URI_REGEX + '|' +IP_REGEX);
   private static final Pattern VARIABLE_NAME_PATTERN = Pattern.compile("filename|path", Pattern.CASE_INSENSITIVE);
   private static final Pattern PATH_DELIMETERS_PATTERN = Pattern.compile("\"/\"|\"//\"|\"\\\\\\\\\"|\"\\\\\\\\\\\\\\\\\"");
+//  排除回环ip
+  private static final String IPV4_LOOPBACK_URI_REGEX = String.format("^%s://127\\.0\\.0\\.1(:[0-9]{1,5})?(/.*)?$", SCHEME);
+  private static final Pattern IPV4_LOOPBACK_URI_PATTERN = Pattern.compile(IPV4_LOOPBACK_URI_REGEX);
 
   @Override
   public List<Tree.Kind> nodesToVisit() {
@@ -192,6 +195,12 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
     if(stringLiteral.contains("*") || stringLiteral.contains("$")) {
       return false;
     }
+
+    // 首先判断是否是带协议和路径的 IPv4 回环地址，如果是则不报告问题
+    if (IPV4_LOOPBACK_URI_PATTERN.matcher(stringLiteral).find()) {
+      return false;
+    }
+
     return URI_PATTERN.matcher(stringLiteral).find();
   }
 
