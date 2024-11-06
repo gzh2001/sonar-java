@@ -72,9 +72,10 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
       checkVariable((VariableTree) tree);
     } else if (tree.is(Tree.Kind.ASSIGNMENT)) {
       checkAssignment((AssignmentExpressionTree) tree);
-    } else if (tree.is(Tree.Kind.STRING_LITERAL)) {
-      checkStringLiteral((LiteralTree) tree);
     }
+//    } else if (tree.is(Tree.Kind.STRING_LITERAL)) {
+//      checkStringLiteral((LiteralTree) tree);
+//    }
   }
 
   private void checkNewClassTree(NewClassTree nct) {
