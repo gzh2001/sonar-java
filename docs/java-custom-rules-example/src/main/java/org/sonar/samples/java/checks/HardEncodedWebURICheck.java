@@ -37,15 +37,25 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
   private static final String IP_REGEX = "^([0-9]{1,3}\\.){3}[0-9]{1,3}(:[0-9]{1,5})?(/.*)?$";
 //  private static final String URI_REGEX = String.format("^%s://.+", IP_REGEX);
   private static final String URI_REGEX = String.format("^%s://([0-9]{1,3}\\.){3}[0-9]{1,3}(:[0-9]{1,5})?(/.*)?$", SCHEME);
-  private static final Pattern URI_PATTERN = Pattern.compile(URI_REGEX + '|' +IP_REGEX);
+
   private static final Pattern VARIABLE_NAME_PATTERN = Pattern.compile("filename|path", Pattern.CASE_INSENSITIVE);
   private static final Pattern PATH_DELIMETERS_PATTERN = Pattern.compile("\"/\"|\"//\"|\"\\\\\\\\\"|\"\\\\\\\\\\\\\\\\\"");
 //  排除回环ip
   private static final String IPV4_LOOPBACK_URI_REGEX = String.format("^%s://(127\\.0\\.0\\.1|192\\.168\\.\\d{1,3}\\.\\d{1,3})(:[0-9]{1,5})?(/.*)?$", SCHEME);
   private static final String IPV4_LOOPBACK_REGEX = "^(127\\.0\\.0\\.1|192\\.168\\.\\d{1,3}\\.\\d{1,3})(:[0-9]{1,5})?(/.*)?$";
-
-
   private static final Pattern IPV4_LOOPBACK_URI_PATTERN = Pattern.compile(IPV4_LOOPBACK_URI_REGEX + '|' + IPV4_LOOPBACK_REGEX);
+  private static final Pattern WSDL_Keyword = Pattern.compile("wsdl", Pattern.CASE_INSENSITIVE);
+  //文件路径
+  private static final String FOLDER_NAME = "[^/?%*:\\\\|\"<>]+";
+  private static final String LOCAL_URI = String.format("^(~/|/|//[\\w-]+/|%s:/)(%s/)*%s/?",
+    SCHEME, FOLDER_NAME, FOLDER_NAME);
+  private static final String BACKSLASH_LOCAL_URI = String.format("^(~\\\\\\\\|\\\\\\\\\\\\\\\\[\\w-]+\\\\\\\\|%s:\\\\\\\\)(%s\\\\\\\\)*%s(\\\\\\\\)?",
+    SCHEME, FOLDER_NAME, FOLDER_NAME);
+  private static final String DISK_URI = "^[A-Za-z]:(/|\\\\)";
+
+  private static final Pattern URI_PATTERN = Pattern.compile(URI_REGEX + '|' +IP_REGEX + '|' +LOCAL_URI + '|' + DISK_URI + '|' + BACKSLASH_LOCAL_URI);
+
+
 
   @Override
   public List<Tree.Kind> nodesToVisit() {
@@ -181,10 +191,10 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
     if (expr != null) {
       if (isHardcodedURI(expr)) {
         reportHardcodedURI(expr);
-      }
-//      } else {
-//        reportStringConcatenationWithPathDelimiter(expr);
 //      }
+      } else {
+        reportStringConcatenationWithPathDelimiter(expr);
+      }
     }
   }
 
@@ -201,6 +211,11 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
 
     // 首先判断是否是带协议和路径的 IPv4 回环地址，如果是则不报告问题
     if (IPV4_LOOPBACK_URI_PATTERN.matcher(stringLiteral).find()) {
+      return false;
+    }
+
+//    判断链接是否包含wsdl，是则不报告
+    if (WSDL_Keyword.matcher(stringLiteral).find()) {
       return false;
     }
 
