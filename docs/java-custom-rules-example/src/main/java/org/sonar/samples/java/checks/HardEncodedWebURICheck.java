@@ -22,11 +22,11 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
   private static final String JAVA_LANG_STRING = "java.lang.String";
   private static final MethodMatchers MATCHERS = MethodMatchers.or(
     MethodMatchers.create()
-      .ofTypes("java.net.*")
+      .ofTypes("java.net")
       .constructor()
       .addParametersMatcher(JAVA_LANG_STRING).build(),
     MethodMatchers.create()
-      .ofTypes("java.io.*")
+      .ofTypes("java.io")
       .constructor()
       .addParametersMatcher(JAVA_LANG_STRING)
       .addParametersMatcher(ANY, JAVA_LANG_STRING)
