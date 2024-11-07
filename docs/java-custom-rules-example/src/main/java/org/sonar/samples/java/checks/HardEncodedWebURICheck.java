@@ -38,18 +38,10 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
       .addParametersMatcher(ANY, JAVA_LANG_STRING)
       .build());
 */
-//  黑名单
-  private static final MethodMatchers MATCHERS = MethodMatchers.or(
-    MethodMatchers.create()
-      .ofTypes("QName")
-      .constructor()
-      .addParametersMatcher(JAVA_LANG_STRING).build(),
-    MethodMatchers.create()
-      .ofTypes("javax.xml.namespace.QName")
-      .constructor()
-      .addParametersMatcher(JAVA_LANG_STRING).build()
-  );
-
+//  黑名单。处理构造函数
+  final Set<String> MATCHERS = new HashSet<>(Arrays.asList(
+             "QName"
+           ));
   // 定义URI和IP地址的正则表达式
   private static final String SCHEME = "[a-zA-Z][a-zA-Z\\+\\.\\-]+";
   private static final String IP_REGEX = "([0-9]{1,3}\\.){3}[0-9]{1,3}(:[0-9]{1,5})?(/.*)?";
@@ -92,14 +84,15 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
   }
 
   private void checkNewClassTree(NewClassTree nct) {
+    Symbol symbol = nct.methodSymbol();
+    log.info("====================================\n构造函数nct={}",nct);
+    log.info("====================================\n构造函数nct.symbolType()={}",nct.symbolType());
+    log.info("====================================\n构造函数nct.methodSymbol()={}",nct.methodSymbol());
+    log.info("====================================\n构造函数nct.methodSymbol().name()={}",symbol.name());
+    log.info("====================================\n构造函数nct.methodSymbol().parameterTypes()={}", ((Symbol.MethodSymbol) symbol).parameterTypes());
     // 检查新类实例是否匹配定义的构造函数匹配器
-    if (!MATCHERS.matches(nct)) {
-      Symbol symbol = nct.methodSymbol();
-      log.info("====================================\n构造函数nct={}",nct);
-      log.info("====================================\n构造函数nct.symbolType()={}",nct.symbolType());
-      log.info("====================================\n构造函数nct.methodSymbol()={}",nct.methodSymbol());
-      log.info("====================================\n构造函数nct.methodSymbol().name()={}",symbol.name());
-      log.info("====================================\n构造函数nct.methodSymbol().parameterTypes()={}", ((Symbol.MethodSymbol) symbol).parameterTypes());
+    if (!MATCHERS.contains(nct.symbolType().name())) {
+      log.info("执行分析");
       nct.arguments().forEach(this::checkExpression);
     }
   }
