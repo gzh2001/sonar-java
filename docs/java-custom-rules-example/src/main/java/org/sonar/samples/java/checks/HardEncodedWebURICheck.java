@@ -97,6 +97,7 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
       Symbol symbol = nct.methodSymbol();
       log.info("====================================\n构造函数nct={}",nct);
       log.info("====================================\n构造函数nct.symbolType()={}",nct.symbolType());
+      log.info("====================================\n构造函数nct.methodSymbol()={}",nct.methodSymbol());
       log.info("====================================\n构造函数nct.methodSymbol().name()={}",symbol.name());
       log.info("====================================\n构造函数nct.methodSymbol().parameterTypes()={}", ((Symbol.MethodSymbol) symbol).parameterTypes());
       nct.arguments().forEach(this::checkExpression);
