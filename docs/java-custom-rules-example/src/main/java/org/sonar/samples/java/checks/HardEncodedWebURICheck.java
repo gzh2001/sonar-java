@@ -20,6 +20,7 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
 
 
   private static final String JAVA_LANG_STRING = "java.lang.String";
+  /* 白名单
   private static final MethodMatchers MATCHERS = MethodMatchers.or(
     MethodMatchers.create()
       .ofTypes("java.net.URI")
@@ -35,6 +36,14 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
       .addParametersMatcher(JAVA_LANG_STRING)
       .addParametersMatcher(ANY, JAVA_LANG_STRING)
       .build());
+*/
+//  黑名单
+  private static final MethodMatchers MATCHERS = MethodMatchers.or(
+    MethodMatchers.create()
+      .ofTypes("javax.xml.namespace.QName")
+      .constructor()
+      .addParametersMatcher(JAVA_LANG_STRING).build()
+  );
 
   // 定义URI和IP地址的正则表达式
   private static final String SCHEME = "[a-zA-Z][a-zA-Z\\+\\.\\-]+";
@@ -79,7 +88,7 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
 
   private void checkNewClassTree(NewClassTree nct) {
     // 检查新类实例是否匹配定义的构造函数匹配器
-    if (MATCHERS.matches(nct)) {
+    if (!MATCHERS.matches(nct)) {
       nct.arguments().forEach(this::checkExpression);
     }
   }
