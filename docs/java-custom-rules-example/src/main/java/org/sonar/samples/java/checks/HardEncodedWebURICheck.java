@@ -22,11 +22,11 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
   private static final String JAVA_LANG_STRING = "java.lang.String";
   private static final MethodMatchers MATCHERS = MethodMatchers.or(
     MethodMatchers.create()
-      .ofTypes("java.net.URI")
+      .ofTypes("java.net.*")
       .constructor()
       .addParametersMatcher(JAVA_LANG_STRING).build(),
     MethodMatchers.create()
-      .ofTypes("java.io.File")
+      .ofTypes("java.io.*")
       .constructor()
       .addParametersMatcher(JAVA_LANG_STRING)
       .addParametersMatcher(ANY, JAVA_LANG_STRING)
@@ -34,16 +34,14 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
 
   // 定义URI和IP地址的正则表达式
   private static final String SCHEME = "[a-zA-Z][a-zA-Z\\+\\.\\-]+";
-  private static final String IP_REGEX = "^([0-9]{1,3}\\.){3}[0-9]{1,3}(:[0-9]{1,5})?(/.*)?$";
-//  private static final String URI_REGEX = String.format("^%s://.+", IP_REGEX);
-  private static final String URI_REGEX = String.format("^%s://([0-9]{1,3}\\.){3}[0-9]{1,3}(:[0-9]{1,5})?(/.*)?$", SCHEME);
+  private static final String IP_REGEX = "([0-9]{1,3}\\.){3}[0-9]{1,3}(:[0-9]{1,5})?(/.*)?";
+//  private static final String URI_REGEX = String.format("^%s://([0-9]{1,3}\\.){3}[0-9]{1,3}(:[0-9]{1,5})?(/.*)?$", SCHEME);
 
   private static final Pattern VARIABLE_NAME_PATTERN = Pattern.compile("filename|path", Pattern.CASE_INSENSITIVE);
   private static final Pattern PATH_DELIMETERS_PATTERN = Pattern.compile("\"/\"|\"//\"|\"\\\\\\\\\"|\"\\\\\\\\\\\\\\\\\"");
-//  排除回环ip
-  private static final String IPV4_LOOPBACK_URI_REGEX = String.format("^%s://(127\\.0\\.0\\.1|192\\.168\\.\\d{1,3}\\.\\d{1,3})(:[0-9]{1,5})?(/.*)?$", SCHEME);
-  private static final String IPV4_LOOPBACK_REGEX = "^(127\\.0\\.0\\.1|192\\.168\\.\\d{1,3}\\.\\d{1,3})(:[0-9]{1,5})?(/.*)?$";
-  private static final Pattern IPV4_LOOPBACK_URI_PATTERN = Pattern.compile(IPV4_LOOPBACK_URI_REGEX + '|' + IPV4_LOOPBACK_REGEX);
+  private static final String IPV4_LOOPBACK_URI_REGEX = String.format("(%s://)?(127\\.0\\.0\\.1|192\\.168\\.\\d{1,3}\\.\\d{1,3})(:[0-9]{1,5})?(/.*)?", SCHEME);
+//  private static final String IPV4_LOOPBACK_REGEX = "^(127\\.0\\.0\\.1|192\\.168\\.\\d{1,3}\\.\\d{1,3})(:[0-9]{1,5})?(/.*)?$";
+  private static final Pattern IPV4_LOOPBACK_URI_PATTERN = Pattern.compile(IPV4_LOOPBACK_URI_REGEX );
   private static final Pattern WSDL_Keyword = Pattern.compile("wsdl", Pattern.CASE_INSENSITIVE);
   //文件路径
   private static final String FOLDER_NAME = "[^/?%*:\\\\|\"<>]+";
@@ -52,15 +50,12 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
   private static final String BACKSLASH_LOCAL_URI = String.format("^(~\\\\\\\\|\\\\\\\\\\\\\\\\[\\w-]+\\\\\\\\|%s:\\\\\\\\)(%s\\\\\\\\)*%s(\\\\\\\\)?",
     SCHEME, FOLDER_NAME, FOLDER_NAME);
   private static final String DISK_URI = "^[A-Za-z]:(/|\\\\)";
-
-  private static final Pattern URI_PATTERN = Pattern.compile(URI_REGEX + '|' +IP_REGEX + '|' +LOCAL_URI + '|' + DISK_URI + '|' + BACKSLASH_LOCAL_URI);
-
-
-
+//  private static final Pattern URI_PATTERN = Pattern.compile(URI_REGEX + '|' + IP_REGEX + '|' + LOCAL_URI + '|' + DISK_URI + '|' + BACKSLASH_LOCAL_URI);
+  private static final Pattern URI_PATTERN = Pattern.compile(IP_REGEX + '|' + LOCAL_URI + '|' + DISK_URI + '|' + BACKSLASH_LOCAL_URI);
   @Override
   public List<Tree.Kind> nodesToVisit() {
     // 返回此规则感兴趣的节点类型
-    return Arrays.asList(Tree.Kind.NEW_CLASS, Tree.Kind.VARIABLE, Tree.Kind.ASSIGNMENT, Tree.Kind.STRING_LITERAL);
+    return Arrays.asList(Tree.Kind.NEW_CLASS, Tree.Kind.VARIABLE, Tree.Kind.ASSIGNMENT);
   }
 
   @Override
@@ -73,9 +68,9 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
     } else if (tree.is(Tree.Kind.ASSIGNMENT)) {
       checkAssignment((AssignmentExpressionTree) tree);
     }
-//    } else if (tree.is(Tree.Kind.STRING_LITERAL)) {
-//      checkStringLiteral((LiteralTree) tree);
-//    }
+    // else if (tree.is(Tree.Kind.STRING_LITERAL)) {
+    //   checkStringLiteral((LiteralTree) tree);
+    // }
   }
 
   private void checkNewClassTree(NewClassTree nct) {
@@ -99,76 +94,63 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
     }
   }
 
-  private void checkStringLiteral(LiteralTree tree) {
-    /*
-     * 在字符串字面量扫描阶段进行过滤（有关WSDL导致的链接大多在该入口）
-     * 关于QName -- 从链接字符串往上的树节点大多类似org.sonar.java.ast.parser.ArgumentListTreeImpl => org.sonar.java.model.expression.NewClassTreeImpl => org.sonar.java.model.declaration.VariableTreeImpl
-     *              如果NewClassTree节点中，新建的类类名为QName则跳过扫描
-     * 关于注解 -- 从链接字符串往上的树节点大多类似org.sonar.java.model.expression.AssignmentExpressionTreeImpl => org.sonar.java.ast.parser.ArgumentListTreeImpl => org.sonar.java.model.declaration.AnnotationTreeImpl
-     *            如果AnnotationTree节点中，注解类型为javax.jws.WebService或者javax.xml.bind.annotation.XmlElementDecl就跳过扫描
-     *
-     * 注解示例：
-     * Tree => org.sonar.java.model.expression.AssignmentExpressionTreeImpl@4cecbf3e
-     * => org.sonar.java.ast.parser.ArgumentListTreeImpl@54039b8a
-     * => org.sonar.java.model.declaration.AnnotationTreeImpl@7625f4a7
-     * => org.sonar.java.model.declaration.ModifiersTreeImpl@183c6db3
-     * => org.sonar.java.model.declaration.ClassTreeImpl@1015bd66
-     * => org.sonar.java.model.JavaTree$CompilationUnitTreeImpl@3f314bad
-     */
+  // private void checkStringLiteral(LiteralTree tree) {
+  //   /*
+  //    * 在字符串字面量扫描阶段进行过滤（有关WSDL导致的链接大多在该入口）
+  //    * 关于QName -- 从链接字符串往上的树节点大多类似org.sonar.java.ast.parser.ArgumentListTreeImpl => org.sonar.java.model.expression.NewClassTreeImpl => org.sonar.java.model.declaration.VariableTreeImpl
+  //    *              如果NewClassTree节点中，新建的类类名为QName则跳过扫描
+  //    * 关于注解 -- 从链接字符串往上的树节点大多类似org.sonar.java.model.expression.AssignmentExpressionTreeImpl => org.sonar.java.ast.parser.ArgumentListTreeImpl => org.sonar.java.model.declaration.AnnotationTreeImpl
+  //    *            如果AnnotationTree节点中，注解类型为javax.jws.WebService或者javax.xml.bind.annotation.XmlElementDecl就跳过扫描
+  //    *
+  //    * 注解示例：
+  //    * Tree => org.sonar.java.model.expression.AssignmentExpressionTreeImpl@4cecbf3e
+  //    * => org.sonar.java.ast.parser.ArgumentListTreeImpl@54039b8a
+  //    * => org.sonar.java.model.declaration.AnnotationTreeImpl@7625f4a7
+  //    * => org.sonar.java.model.declaration.ModifiersTreeImpl@183c6db3
+  //    * => org.sonar.java.model.declaration.ClassTreeImpl@1015bd66
+  //    * => org.sonar.java.model.JavaTree$CompilationUnitTreeImpl@3f314bad
+  //    */
 
-//    debug代码块
-/*
-    Tree p = tree.parent();
-    StringBuilder msg = new StringBuilder("Tree");
-    while (p != null) {
-      log.info("================{}===============",tree.value());
-      msg.append(" => ").append(p);
-      p = p.parent();
-    }
-    log.info(msg.toString());
+  //   Tree parent = tree.parent();
+  //   while (parent != null){
+  //     if (parent instanceof NewClassTree || parent instanceof AnnotationTree) {
+  //       break;
+  //     }
+  //     parent = parent.parent();
+  //   }
+  //   if (parent != null) {
+  //     // 判断父节点的类型并输出相关信息
+  //     if (parent instanceof NewClassTree newClassTree) {
+  //       TypeSymbol typeSymbol = null;
+  //       typeSymbol = newClassTree.symbolType().symbol();
+  //       // log.info("===================typeSymbol.name()={}",typeSymbol.name());
+  //       if(typeSymbol.name().equals("QName")){return ;};
+  //     } else {
+  //       // 校验注解
+  //       AnnotationTree annotation = (AnnotationTree) parent;
+  //       // String annotationType = annotation.annotationType().toString();
+  //       String annotationType = AnnotationTypeResolver.getFullAnnotationTypeName(annotation);
+  //       // log.info("===========annotationType={}",annotationType);
+  //       final Set<String> IGNORED_ANNOTATIONS = new HashSet<>(Arrays.asList(
+  //         "WebService",
+  //         "XmlElementDecl",
+  //         "XmlType",
+  //         "WebServiceClient",
+  //         "WebParam",
+  //         "XmlSchema",
+  //         "javax.xml.bind.annotation.XmlSchema"
+  //       ));
+  //       if (IGNORED_ANNOTATIONS.contains(annotationType)) {
+  //         return;
+  //       }
+  //     }
+  //   }
 
-    */
-
-    Tree parent = tree.parent();
-    while (parent != null){
-      if (parent instanceof NewClassTree || parent instanceof AnnotationTree) {
-        break;
-      }
-      parent = parent.parent();
-    }
-    if (parent != null) {
-      // 判断父节点的类型并输出相关信息
-      if (parent instanceof NewClassTree newClassTree) {
-        TypeSymbol typeSymbol = null;
-        typeSymbol = newClassTree.symbolType().symbol();
-//        log.info("===================typeSymbol.name()={}",typeSymbol.name());
-        if(typeSymbol.name().equals("QName")){return ;};
-      } else {
-        // 校验注解
-        AnnotationTree annotation = (AnnotationTree) parent;
-//        String annotationType = annotation.annotationType().toString();
-        String annotationType = AnnotationTypeResolver.getFullAnnotationTypeName(annotation);
-//        log.info("===========annotationType={}",annotationType);
-        final Set<String> IGNORED_ANNOTATIONS = new HashSet<>(Arrays.asList(
-          "WebService",
-          "XmlElementDecl",
-          "XmlType",
-          "WebServiceClient",
-          "WebParam",
-          "XmlSchema",
-          "javax.xml.bind.annotation.XmlSchema"
-        ));
-        if (IGNORED_ANNOTATIONS.contains(annotationType)) {
-          return;
-        }
-      }
-    }
-
-    // 检查字符串字面值是否包含硬编码的URI
-    if (isHardcodedURI(tree)) {
-      reportHardcodedURI(tree);
-    }
-  }
+  //   // 检查字符串字面值是否包含硬编码的URI
+  //   if (isHardcodedURI(tree)) {
+  //     reportHardcodedURI(tree);
+  //   }
+  // }
 
   private static boolean isPartOfAnnotation(AssignmentExpressionTree tree) {
     // 辅助方法，确定树是否是注释的一部分
@@ -192,7 +174,6 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
     if (expr != null) {
       if (isHardcodedURI(expr)) {
         reportHardcodedURI(expr);
-//      }
       } else {
         reportStringConcatenationWithPathDelimiter(expr);
       }
@@ -201,6 +182,7 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
 
   private static boolean isHardcodedURI(ExpressionTree expr) {
     // 使用正则表达式确定给定的表达式是否为硬编码的URI
+    // 有关过滤规则的写在这里
     ExpressionTree newExpr = ExpressionUtils.skipParentheses(expr);
     if (!newExpr.is(Tree.Kind.STRING_LITERAL)) {
       return false;
@@ -215,7 +197,7 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
       return false;
     }
 
-//    判断链接是否包含wsdl，是则不报告
+    // 判断链接是否包含wsdl，是则不报告
     if (WSDL_Keyword.matcher(stringLiteral).find()) {
       return false;
     }
