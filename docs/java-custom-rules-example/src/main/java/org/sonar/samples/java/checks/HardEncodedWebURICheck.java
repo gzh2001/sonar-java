@@ -42,6 +42,10 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
     MethodMatchers.create()
       .ofTypes("QName")
       .constructor()
+      .addParametersMatcher(JAVA_LANG_STRING).build(),
+    MethodMatchers.create()
+      .ofTypes("javax.xml.namespace.QName")
+      .constructor()
       .addParametersMatcher(JAVA_LANG_STRING).build()
   );
 
