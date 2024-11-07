@@ -89,6 +89,8 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
   private void checkNewClassTree(NewClassTree nct) {
     // 检查新类实例是否匹配定义的构造函数匹配器
     if (!MATCHERS.matches(nct)) {
+      log.info("====================================\n构造函数nct={}",nct);
+      log.info("====================================\n构造函数nct.symbolType().symbol()={}",nct.symbolType().symbol());
       nct.arguments().forEach(this::checkExpression);
     }
   }
