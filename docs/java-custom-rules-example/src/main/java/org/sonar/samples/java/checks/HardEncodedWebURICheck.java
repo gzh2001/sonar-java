@@ -6,6 +6,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.sonar.check.Rule;
+import org.sonar.plugins.java.api.semantic.Symbol;
 import org.sonar.plugins.java.api.tree.*;
 import org.sonar.samples.java.model.ExpressionUtils;
 import org.sonar.samples.java.model.LiteralUtils;
@@ -93,8 +94,11 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
   private void checkNewClassTree(NewClassTree nct) {
     // 检查新类实例是否匹配定义的构造函数匹配器
     if (!MATCHERS.matches(nct)) {
+      Symbol symbol = nct.methodSymbol();
       log.info("====================================\n构造函数nct={}",nct);
       log.info("====================================\n构造函数nct.symbolType()={}",nct.symbolType());
+      log.info("====================================\n构造函数nct.methodSymbol().name()={}",symbol.name());
+      log.info("====================================\n构造函数nct.methodSymbol().parameterTypes()={}", ((Symbol.MethodSymbol) symbol).parameterTypes());
       nct.arguments().forEach(this::checkExpression);
     }
   }
