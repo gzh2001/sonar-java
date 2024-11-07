@@ -40,7 +40,7 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
 //  黑名单
   private static final MethodMatchers MATCHERS = MethodMatchers.or(
     MethodMatchers.create()
-      .ofTypes("javax.xml.namespace.QName")
+      .ofTypes("QName")
       .constructor()
       .addParametersMatcher(JAVA_LANG_STRING).build()
   );
@@ -201,7 +201,7 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
       return false;
     }
     String stringLiteral = LiteralUtils.trimQuotes(((LiteralTree) newExpr).value());
-    log.info("====================================\n字面量="+stringLiteral);
+    log.info("====================================\n字面量={}", stringLiteral);
     if(stringLiteral.contains("*") || stringLiteral.contains("$")) {
       return false;
     }
