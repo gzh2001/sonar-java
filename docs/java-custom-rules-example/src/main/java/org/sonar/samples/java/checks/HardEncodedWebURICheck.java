@@ -90,7 +90,7 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
     // 检查新类实例是否匹配定义的构造函数匹配器
     if (!MATCHERS.matches(nct)) {
       log.info("====================================\n构造函数nct={}",nct);
-      log.info("====================================\n构造函数nct.symbolType().symbol()={}",nct.symbolType().symbol());
+      log.info("====================================\n构造函数nct.symbolType()={}",nct.symbolType());
       nct.arguments().forEach(this::checkExpression);
     }
   }
