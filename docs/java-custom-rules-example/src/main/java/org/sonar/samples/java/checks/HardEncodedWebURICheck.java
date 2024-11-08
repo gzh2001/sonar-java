@@ -102,7 +102,7 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
   }
 
   private void checkAssignment(AssignmentExpressionTree tree) {
-    log.info("checkAssignment: {}", ((LiteralTree)tree.expression()).value());
+    log.info("checkVariable:{}",((LiteralTree) Objects.requireNonNull(tree.expression())).value());
     // 检查赋值表达式是否涉及文件名或路径变量，并且不属于注释的一部分
     if (isFileNameVariable(getVariableIdentifier(tree)) && !isPartOfAnnotation(tree)) {
       log.info("checkAssignment isFileNameVariable");
