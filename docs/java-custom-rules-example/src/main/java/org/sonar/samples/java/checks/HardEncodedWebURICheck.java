@@ -94,7 +94,7 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
 
   private void checkVariable(VariableTree tree) {
     // 检查变量名是否匹配文件名或路径模式
-    log.info("checkVariable");
+    log.info("checkVariable:{}",((LiteralTree)tree.initializer()).value());
     if (isFileNameVariable(tree.simpleName())) {
       log.info("checkVariable isFileNameVariable");
       checkExpression(tree.initializer());
@@ -102,7 +102,7 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
   }
 
   private void checkAssignment(AssignmentExpressionTree tree) {
-    log.info("checkAssignment");
+    log.info("checkAssignment: {}", ((LiteralTree)tree.expression()).value());
     // 检查赋值表达式是否涉及文件名或路径变量，并且不属于注释的一部分
     if (isFileNameVariable(getVariableIdentifier(tree)) && !isPartOfAnnotation(tree)) {
       log.info("checkAssignment isFileNameVariable");
