@@ -55,7 +55,7 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
   private static final Pattern WSDL_Keyword = Pattern.compile("wsdl", Pattern.CASE_INSENSITIVE);
   //文件路径
   private static final String FOLDER_NAME = "[^/?%*:\\\\|\"<>]+";
-  private static final String LOCAL_URI = String.format("^(~/|/|//[\\w-]+/|%s:/|\\./|[\\w-]+/)(%s/)*%s/?",
+  private static final String LOCAL_URI = String.format("^(~/|/|//[\\w-]+/|%s:/|(\\.*/)+|[\\w-]+/)(%s/)*%s/?",
     SCHEME, FOLDER_NAME, FOLDER_NAME);
   private static final String BACKSLASH_LOCAL_URI = String.format("^(~\\\\\\\\|\\\\\\\\\\\\\\\\[\\w-]+\\\\\\\\|%s:\\\\\\\\)(%s\\\\\\\\)*%s(\\\\\\\\)?",
     SCHEME, FOLDER_NAME, FOLDER_NAME);
