@@ -94,7 +94,7 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
 
   private void checkVariable(VariableTree tree) {
     // 检查变量名是否匹配文件名或路径模式
-    log.info("checkVariable:{}",tree.toString());
+    log.info("checkVariable:{}",tree.simpleName());
     if (isFileNameVariable(tree.simpleName())) {
       log.info("checkVariable isFileNameVariable");
       checkExpression(tree.initializer());
