@@ -84,17 +84,17 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
   }
 
   private void checkNewClassTree(NewClassTree nct) {
-    log.info("checkNewClassTree");
+//    log.info("checkNewClassTree");
     // 检查新类实例是否匹配定义的构造函数匹配器
     if (!MATCHERS.contains(nct.symbolType().name())) {
-      log.info("checkNewClassTree MATCHERS.contains");
+//      log.info("checkNewClassTree MATCHERS.contains");
       nct.arguments().forEach(this::checkExpression);
     }
   }
 
   private void checkVariable(VariableTree tree) {
     // 检查变量名是否匹配文件名或路径模式
-    log.info("checkVariable:{}",tree.simpleName());
+//    log.info("checkVariable:{}",tree.simpleName());
 //    if (isFileNameVariable(tree.simpleName())) {
 //      log.info("checkVariable isFileNameVariable");
 //      checkExpression(tree.initializer());
@@ -104,10 +104,10 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
 
   private void checkAssignment(AssignmentExpressionTree tree) {
     String msg = ((LiteralTree) Objects.requireNonNull(tree.expression())).value();
-    log.info("checkAssignment:{}", tree);
+//    log.info("checkAssignment:{}", tree);
     // 检查赋值表达式是否涉及文件名或路径变量，并且不属于注释的一部分
     if (isFileNameVariable(getVariableIdentifier(tree)) && !isPartOfAnnotation(tree)) {
-      log.info("checkAssignment isFileNameVariable");
+//      log.info("checkAssignment isFileNameVariable");
       checkExpression(tree.expression());
     }
   }
@@ -206,7 +206,7 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
       return false;
     }
     String stringLiteral = LiteralUtils.trimQuotes(((LiteralTree) newExpr).value());
-    log.info("====================================\n字面量={}", stringLiteral);
+//    log.info("====================================\n字面量={}", stringLiteral);
     if(stringLiteral.contains("*") || stringLiteral.contains("$")) {
       return false;
     }
