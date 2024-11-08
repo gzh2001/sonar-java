@@ -84,29 +84,28 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
   }
 
   private void checkNewClassTree(NewClassTree nct) {
-    Symbol symbol = nct.methodSymbol();
-    log.info("====================================\n构造函数nct={}",nct);
-    log.info("====================================\n构造函数nct.symbolType()={}",nct.symbolType());
-    log.info("====================================\n构造函数nct.methodSymbol()={}",nct.methodSymbol());
-    log.info("====================================\n构造函数nct.methodSymbol().name()={}",symbol.name());
-    log.info("====================================\n构造函数nct.methodSymbol().parameterTypes()={}", ((Symbol.MethodSymbol) symbol).parameterTypes());
+    log.info("checkNewClassTree");
     // 检查新类实例是否匹配定义的构造函数匹配器
     if (!MATCHERS.contains(nct.symbolType().name())) {
-      log.info("执行分析");
+      log.info("checkNewClassTree MATCHERS.contains");
       nct.arguments().forEach(this::checkExpression);
     }
   }
 
   private void checkVariable(VariableTree tree) {
     // 检查变量名是否匹配文件名或路径模式
+    log.info("checkVariable");
     if (isFileNameVariable(tree.simpleName())) {
+      log.info("checkVariable isFileNameVariable");
       checkExpression(tree.initializer());
     }
   }
 
   private void checkAssignment(AssignmentExpressionTree tree) {
+    log.info("checkAssignment");
     // 检查赋值表达式是否涉及文件名或路径变量，并且不属于注释的一部分
     if (isFileNameVariable(getVariableIdentifier(tree)) && !isPartOfAnnotation(tree)) {
+      log.info("checkAssignment isFileNameVariable");
       checkExpression(tree.expression());
     }
   }
