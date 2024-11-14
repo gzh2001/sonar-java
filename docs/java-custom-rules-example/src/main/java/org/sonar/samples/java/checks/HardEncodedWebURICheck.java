@@ -6,14 +6,10 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.sonar.check.Rule;
-import org.sonar.plugins.java.api.semantic.Symbol;
 import org.sonar.plugins.java.api.tree.*;
 import org.sonar.samples.java.model.ExpressionUtils;
 import org.sonar.samples.java.model.LiteralUtils;
 import org.sonar.plugins.java.api.IssuableSubscriptionVisitor;
-import org.sonar.plugins.java.api.semantic.MethodMatchers;
-import org.sonar.plugins.java.api.semantic.Symbol.TypeSymbol;
-import static org.sonar.plugins.java.api.semantic.MethodMatchers.ANY;
 
 @Rule(key = "HardEncodedWebURICheck")
 @Slf4j
@@ -39,7 +35,7 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
       .build());
 */
 //  黑名单。处理构造函数
-  final Set<String> MATCHERS = new HashSet<>(Arrays.asList(
+  private final Set<String> MATCHERS = new HashSet<>(Arrays.asList(
              "QName"
            ));
   // 定义URI和IP地址的正则表达式
@@ -48,6 +44,7 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
 //  private static final String URI_REGEX = String.format("^%s://([0-9]{1,3}\\.){3}[0-9]{1,3}(:[0-9]{1,5})?(/.*)?$", SCHEME);
 
   private static final Pattern VARIABLE_NAME_PATTERN = Pattern.compile("filename|path|pureIP|website", Pattern.CASE_INSENSITIVE);
+  private static final Pattern MIME_PATTERN = Pattern.compile("^(application|audio|image|message|multipart|text|video)/[a-zA-Z0-9.+-]+$", Pattern.CASE_INSENSITIVE);
   private static final Pattern PATH_DELIMETERS_PATTERN = Pattern.compile("\"/\"|\"//\"|\"\\\\\\\\\"|\"\\\\\\\\\\\\\\\\\"");
   private static final String IPV4_LOOPBACK_URI_REGEX = String.format("(%s://)?(127\\.0\\.0\\.1|192\\.168\\.\\d{1,3}\\.\\d{1,3})(:[0-9]{1,5})?(/.*)?", SCHEME);
 //  private static final String IPV4_LOOPBACK_REGEX = "^(127\\.0\\.0\\.1|192\\.168\\.\\d{1,3}\\.\\d{1,3})(:[0-9]{1,5})?(/.*)?$";
@@ -62,6 +59,87 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
   private static final String DISK_URI = "^[A-Za-z]:(/|\\\\)";
 //  private static final Pattern URI_PATTERN = Pattern.compile(URI_REGEX + '|' + IP_REGEX + '|' + LOCAL_URI + '|' + DISK_URI + '|' + BACKSLASH_LOCAL_URI);
   private static final Pattern URI_PATTERN = Pattern.compile(IP_REGEX + '|' + LOCAL_URI + '|' + DISK_URI + '|' + BACKSLASH_LOCAL_URI);
+  private static final Set<String> MIMETYPES = new HashSet<>(Arrays.asList(
+    "audio/aac",
+    "application/x-abiword",
+    "application/stream",
+    "image/apng",
+    "application/x-freearc",
+    "image/avif",
+    "video/x-msvideo",
+    "application/vnd.amazon.ebook",
+    "application/octet-stream",
+    "image/bmp",
+    "application/x-bzip",
+    "application/x-bzip2",
+    "application/x-cdf",
+    "application/x-csh",
+    "text/css",
+    "text/csv",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.ms-fontobject",
+    "application/epub+zip",
+    "application/gzip",
+    "image/gif",
+    "text/html",
+    "image/vnd.microsoft.icon",
+    "text/calendar",
+    "application/java-archive",
+    "image/jpeg",
+    "text/javascript",
+    "application/json",
+    "application/ld+json",
+    "audio/midi",
+    "audio/x-midi",
+    "audio/mpeg",
+    "video/mp4",
+    "video/mpeg",
+    "application/vnd.apple.installer+xml",
+    "application/vnd.oasis.opendocument.presentation",
+    "application/vnd.oasis.opendocument.spreadsheet",
+    "application/vnd.oasis.opendocument.text",
+    "audio/ogg",
+    "video/ogg",
+    "application/ogg",
+    "audio/opus",
+    "font/otf",
+    "image/png",
+    "application/pdf",
+    "application/x-httpd-php",
+    "application/vnd.ms-powerpoint",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "application/vnd.rar",
+    "application/rtf",
+    "application/x-sh",
+    "image/svg+xml",
+    "application/x-tar",
+    "image/tiff",
+    "video/mp2t",
+    "font/ttf",
+    "text/plain",
+    "application/vnd.visio",
+    "audio/wav",
+    "audio/webm",
+    "video/webm",
+    "image/webp",
+    "font/woff",
+    "font/woff2",
+    "application/xhtml+xml",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/xml",
+    "application/vnd.mozilla.xul+xml",
+    "application/zip",
+    "video/3gpp",
+    "audio/3gpp",
+    "video/3gpp2",
+    "audio/3gpp2",
+    "application/x-7z-compressed"
+  ));
+
+
+
   @Override
   public List<Tree.Kind> nodesToVisit() {
     // 返回此规则感兴趣的节点类型
@@ -219,6 +297,13 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
     // 判断链接是否包含wsdl，是则不报告
     if (WSDL_Keyword.matcher(stringLiteral).find()) {
       return false;
+    }
+
+    if (MIME_PATTERN.matcher(stringLiteral.toLowerCase().strip()).find()) {
+      if(MIMETYPES.contains(stringLiteral.strip())) {
+        return false;
+      }
+//      return false;
     }
 
     return URI_PATTERN.matcher(stringLiteral).find();
