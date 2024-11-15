@@ -60,12 +60,13 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
 //  private static final Pattern URI_PATTERN = Pattern.compile(URI_REGEX + '|' + IP_REGEX + '|' + LOCAL_URI + '|' + DISK_URI + '|' + BACKSLASH_LOCAL_URI);
   private static final Pattern URI_PATTERN = Pattern.compile(IP_REGEX + '|' + LOCAL_URI + '|' + DISK_URI + '|' + BACKSLASH_LOCAL_URI);
   private static final Set<String> DATE_FORMAT_STRINGS = new HashSet<>(Arrays.asList(
-    "yyyy/MM/dd", "dd/MM/yyyy", "MM/dd/yyyy"
+    "yyyy/mm/dd", "dd/mm/yyyy", "mm/dd/yyyy"
   ));
   private static final Set<String> MIMETYPES = new HashSet<>(Arrays.asList(
     "audio/aac",
     "application/x-abiword",
     "application/stream",
+    "application/x-www-form-urlencoded",
     "image/apng",
     "application/x-freearc",
     "image/avif",
