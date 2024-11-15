@@ -59,6 +59,9 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
   private static final String DISK_URI = "^[A-Za-z]:(/|\\\\)";
 //  private static final Pattern URI_PATTERN = Pattern.compile(URI_REGEX + '|' + IP_REGEX + '|' + LOCAL_URI + '|' + DISK_URI + '|' + BACKSLASH_LOCAL_URI);
   private static final Pattern URI_PATTERN = Pattern.compile(IP_REGEX + '|' + LOCAL_URI + '|' + DISK_URI + '|' + BACKSLASH_LOCAL_URI);
+  private static final Set<String> DATE_FORMAT_STRINGS = new HashSet<>(Arrays.asList(
+    "yyyy/MM/dd", "dd/MM/yyyy", "MM/dd/yyyy"
+  ));
   private static final Set<String> MIMETYPES = new HashSet<>(Arrays.asList(
     "audio/aac",
     "application/x-abiword",
@@ -296,6 +299,10 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
 
     // 判断链接是否包含wsdl，是则不报告
     if (WSDL_Keyword.matcher(stringLiteral).find()) {
+      return false;
+    }
+
+    if (DATE_FORMAT_STRINGS.contains(stringLiteral.toLowerCase().strip())) {
       return false;
     }
 
