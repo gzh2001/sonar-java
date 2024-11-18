@@ -287,7 +287,7 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
       return false;
     }
     String stringLiteral = LiteralUtils.trimQuotes(((LiteralTree) newExpr).value());
-//    log.info("====================================\n字面量={}", stringLiteral);
+    log.info("====================================\n字面量={}", stringLiteral);
     if(stringLiteral.contains("*") || stringLiteral.contains("$")) {
       return false;
     }
@@ -301,7 +301,7 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
     if (WSDL_Keyword.matcher(stringLiteral).find()) {
       return false;
     }
-
+    // 日期格式过滤
     if (DATE_FORMAT_STRINGS.contains(stringLiteral.toLowerCase().strip())) {
       return false;
     }
