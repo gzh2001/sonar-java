@@ -63,6 +63,7 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
     "yyyy/mm/dd", "dd/mm/yyyy", "mm/dd/yyyy",
     "yy/mm/dd", "dd/mm/yy", "mm/dd/yy"
   ));
+  private static final Pattern DATE_FORMAT_PATTERN = Pattern.compile("(dd/MM/(yyyy|yy)|MM/dd/(yyyy|yy)|(yyyy|yy)/MM/dd)\\s?.*", Pattern.CASE_INSENSITIVE);
   private static final Set<String> MIMETYPES = new HashSet<>(Arrays.asList(
     "audio/aac",
     "application/x-abiword",
@@ -303,7 +304,10 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
       return false;
     }
     // 日期格式过滤
-    if (DATE_FORMAT_STRINGS.contains(stringLiteral.toLowerCase().strip())) {
+//    if (DATE_FORMAT_STRINGS.contains(stringLiteral.toLowerCase().strip())) {
+//      return false;
+//    }
+    if (DATE_FORMAT_PATTERN.matcher(stringLiteral.strip()).find()) {
       return false;
     }
 
