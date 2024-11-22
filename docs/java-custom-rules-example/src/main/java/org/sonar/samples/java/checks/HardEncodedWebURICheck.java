@@ -171,26 +171,26 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
 //    log.info("checkNewClassTree");
     // 检查新类实例是否匹配定义的构造函数匹配器
     if (!MATCHERS.contains(nct.symbolType().name())) {
-//      log.info("checkNewClassTree MATCHERS.contains");
+      log.info("checkNewClassTree MATCHERS.contains");
       nct.arguments().forEach(this::checkExpression);
     }
   }
 
   private void checkVariable(VariableTree tree) {
     // 检查变量名是否匹配文件名或路径模式
-//    log.info("checkVariable:{}",tree.simpleName());
-//    if (isFileNameVariable(tree.simpleName())) {
-//      log.info("checkVariable isFileNameVariable");
-//      checkExpression(tree.initializer());
-//    }
-    checkExpression(tree.initializer());
+    log.info("checkVariable:{}",tree.simpleName());
+    if (isFileNameVariable(tree.simpleName())) {
+      log.info("checkVariable isFileNameVariable");
+      checkExpression(tree.initializer());
+    }
+//    checkExpression(tree.initializer());
   }
 
   private void checkAssignment(AssignmentExpressionTree tree) {
 //    log.info("checkAssignment:{}", tree);
     // 检查赋值表达式是否涉及文件名或路径变量，并且不属于注释的一部分
     if (isFileNameVariable(getVariableIdentifier(tree)) && !isPartOfAnnotation(tree)) {
-//      log.info("checkAssignment isFileNameVariable");
+      log.info("checkAssignment isFileNameVariable");
       checkExpression(tree.expression());
     }
   }
