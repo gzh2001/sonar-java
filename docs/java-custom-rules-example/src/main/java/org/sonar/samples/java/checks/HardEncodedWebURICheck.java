@@ -289,7 +289,7 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
       return false;
     }
     String stringLiteral = LiteralUtils.trimQuotes(((LiteralTree) newExpr).value());
-//    log.info("====================================\n字面量={}", stringLiteral);
+    log.info("====================================\n字面量={}", stringLiteral);
     if(stringLiteral.contains("*") || stringLiteral.contains("$")) {
       return false;
     }
