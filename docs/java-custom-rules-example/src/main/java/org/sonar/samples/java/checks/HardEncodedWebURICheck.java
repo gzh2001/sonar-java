@@ -124,6 +124,7 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
     "video/mp2t",
     "font/ttf",
     "text/plain",
+    "text/json",
     "application/vnd.visio",
     "audio/wav",
     "audio/webm",
@@ -312,9 +313,14 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
     }
 
     if (MIME_PATTERN.matcher(stringLiteral.toLowerCase().strip()).find()) {
-      if(MIMETYPES.contains(stringLiteral.strip())) {
-        return false;
+      for(String m : MIMETYPES) {
+        if(stringLiteral.toLowerCase().strip().contains(m.toLowerCase())) {
+          return false;
+        }
       }
+//      if(MIMETYPES.contains(stringLiteral.strip())) {
+//        return false;
+//      }
 //      return false;
     }
 
