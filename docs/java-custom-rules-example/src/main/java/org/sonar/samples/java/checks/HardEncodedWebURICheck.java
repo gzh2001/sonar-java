@@ -89,6 +89,7 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
     "application/gzip",
     "image/gif",
     "text/html",
+    "text/xml",
     "image/vnd.microsoft.icon",
     "text/calendar",
     "application/java-archive",
