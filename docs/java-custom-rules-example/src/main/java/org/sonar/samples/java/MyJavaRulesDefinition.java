@@ -13,8 +13,8 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonarsource.analyzer.commons.RuleMetadataLoader;
 
 /**
- * Declare rule metadata in server repository of rules.
- * That allows to list the rules in the page "Rules".
+ * 在规则服务器存储库中声明规则元数据。
+ * 这允许在“规则”页面中列出规则。
  */
 public class MyJavaRulesDefinition implements RulesDefinition {
 

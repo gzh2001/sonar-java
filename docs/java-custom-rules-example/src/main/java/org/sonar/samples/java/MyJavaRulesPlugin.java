@@ -7,7 +7,7 @@ package org.sonar.samples.java;
 import org.sonar.api.Plugin;
 
 /**
- * Entry point of your plugin containing your custom rules
+ * 包含自定义规则的插件的入口点
  */
 public class MyJavaRulesPlugin implements Plugin {
 

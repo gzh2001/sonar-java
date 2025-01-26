@@ -1,0 +1,42 @@
+<h2>为什么这是一个问题？</h2>
+<p>将URI硬编码会使测试程序变得困难，原因如下：</p>
+<ul>
+  <li>路径字面量在不同操作系统之间并不总是可移植的</li>
+  <li>在特定的测试环境中，给定的绝对路径可能不存在</li>
+  <li>在执行测试时，指定的互联网URL可能不可用</li>
+  <li>生产环境的文件系统通常与开发环境不同</li>
+</ul>
+<p>此外，硬编码的URI可能包含敏感信息，如IP地址，不应存储在代码中。</p>
+<p>出于以上所有原因，URI不应被硬编码。相反，它应被可定制的参数替代。</p>
+<p>即使URI的元素是动态获取的，如果路径分隔符是硬编码的，可移植性仍然会受到限制。</p>
+<p>当URI或路径分隔符被硬编码时，此规则会引发问题。</p>
+<h2>如何修复</h2>
+<h3>代码示例</h3>
+<h4>不合规的代码示例</h4>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+public class Foo {
+  public Collection&lt;User&gt; listUsers() {
+    File userList = new File("/home/mylogin/Dev/users.txt"); // 不合规
+    Collection&lt;User&gt; users = parse(userList);
+    return users;
+  }
+}
+</pre>
+<h4>合规的解决方案</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+public class Foo {
+  // Configuration是一个返回可定制属性的类：它可以被模拟以在测试期间注入。
+  private Configuration config;
+  public Foo(Configuration myConfig) {
+    this.config = myConfig;
+  }
+  public Collection&lt;User&gt; listUsers() {
+    // 在这里找到获取正确文件夹的方法，在本例中使用Configuration对象
+    String listingFolder = config.getProperty("myApplication.listingFolder");
+    // 并使用此参数代替硬编码的路径
+    File userList = new File(listingFolder, "users.txt"); // 合规
+    Collection&lt;User&gt; users = parse(userList);
+    return users;
+  }
+}
+</pre>

@@ -59,10 +59,6 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
   private static final String DISK_URI = "^[A-Za-z]:(/|\\\\)";
 //  private static final Pattern URI_PATTERN = Pattern.compile(URI_REGEX + '|' + IP_REGEX + '|' + LOCAL_URI + '|' + DISK_URI + '|' + BACKSLASH_LOCAL_URI);
   private static final Pattern URI_PATTERN = Pattern.compile(IP_REGEX + '|' + LOCAL_URI + '|' + DISK_URI + '|' + BACKSLASH_LOCAL_URI);
-  private static final Set<String> DATE_FORMAT_STRINGS = new HashSet<>(Arrays.asList(
-    "yyyy/mm/dd", "dd/mm/yyyy", "mm/dd/yyyy",
-    "yy/mm/dd", "dd/mm/yy", "mm/dd/yy"
-  ));
   private static final Pattern DATE_FORMAT_PATTERN = Pattern.compile("(dd/MM/(yyyy|yy)|MM/dd/(yyyy|yy)|(yyyy|yy)/MM/dd)\\s?.*", Pattern.CASE_INSENSITIVE);
   private static final Set<String> MIMETYPES = new HashSet<>(Arrays.asList(
     "audio/aac",
