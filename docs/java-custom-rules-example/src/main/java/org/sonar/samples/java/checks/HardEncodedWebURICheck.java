@@ -39,27 +39,52 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
              "QName"
            ));
   // 定义URI和IP地址的正则表达式
-  private static final String SCHEME = "[a-zA-Z][a-zA-Z\\+\\.\\-]+";
-  private static final String IP_REGEX = "([0-9]{1,3}\\.){3}[0-9]{1,3}(:[0-9]{1,5})?(/.*)?";
-//  private static final String URI_REGEX = String.format("^%s://([0-9]{1,3}\\.){3}[0-9]{1,3}(:[0-9]{1,5})?(/.*)?$", SCHEME);
+  private static final String SCHEME = "[a-zA-Z][a-zA-Z\\+\\.\\-]+";  // 协议头
+  // 纯ip
+  //  private static final String IP_REGEX = "([0-9]{1,3}\\.){3}[0-9]{1,3}(:[0-9]{1,5})?(/.*)?";
+  // 非域名（ip）链接
+  //  private static final String URI_REGEX = String.format("^%s://([0-9]{1,3}\\.){3}[0-9]{1,3}(:[0-9]{1,5})?(/.*)?$", SCHEME);
 
+  // 文件变量特征值
   private static final Pattern VARIABLE_NAME_PATTERN = Pattern.compile("filename|path|pureIP|website", Pattern.CASE_INSENSITIVE);
+  // MIME类型
   private static final Pattern MIME_PATTERN = Pattern.compile("^(application|audio|image|message|multipart|text|video)/[a-zA-Z0-9.+-]+$", Pattern.CASE_INSENSITIVE);
+  // 路径分隔符
   private static final Pattern PATH_DELIMETERS_PATTERN = Pattern.compile("\"/\"|\"//\"|\"\\\\\\\\\"|\"\\\\\\\\\\\\\\\\\"");
+  // 回环地址
   private static final String IPV4_LOOPBACK_URI_REGEX = String.format("(%s://)?(127\\.0\\.0\\.1|192\\.168\\.\\d{1,3}\\.\\d{1,3})(:[0-9]{1,5})?(/.*)?", SCHEME);
 //  private static final String IPV4_LOOPBACK_REGEX = "^(127\\.0\\.0\\.1|192\\.168\\.\\d{1,3}\\.\\d{1,3})(:[0-9]{1,5})?(/.*)?$";
   private static final Pattern IPV4_LOOPBACK_URI_PATTERN = Pattern.compile(IPV4_LOOPBACK_URI_REGEX );
+  // WSDL关键字
   private static final Pattern WSDL_Keyword = Pattern.compile("wsdl", Pattern.CASE_INSENSITIVE);
-  //文件路径
+  //文件夹路径，确保文件夹名称不包含以下字符：/, ?, %, *, :, \, |, ", <, >
   private static final String FOLDER_NAME = "[^/?%*:\\\\|\"<>]+";
-  private static final String LOCAL_URI = String.format("^(~/|/|//[\\w-]+/|%s:/|(\\.*/)+|[\\w-]+/)(%s/)*%s/?",
-    SCHEME, FOLDER_NAME, FOLDER_NAME);
-  private static final String BACKSLASH_LOCAL_URI = String.format("^(~\\\\\\\\|\\\\\\\\\\\\\\\\[\\w-]+\\\\\\\\|%s:\\\\\\\\)(%s\\\\\\\\)*%s(\\\\\\\\)?",
-    SCHEME, FOLDER_NAME, FOLDER_NAME);
+  // 文件后缀名
+  private static final String FILE_EXTENSION = "\\.[a-zA-Z0-9]+$";
+  /*
+  该正则表达式匹配的是本地 URI（统一资源标识符）。具体来说，它匹配以下几种形式的本地路径：
+  1. ~/ 或 / 开头的路径。
+  2. // 后跟一个或多个字母、数字、下划线或破折号的路径。
+  3. （废弃）以协议头（如 http:）开头的路径。
+  4. 以一个或多个 ./ 开头的路径。
+  5. 以一个或多个字母、数字、下划线或破折号开头的路径。
+   */
+  // private static final String LOCAL_URI = String.format("^(~/|/|//[\\w-]+/|%s:/|(\\.*/)+|[\\w-]+/)(%s/)*%s/?", SCHEME, FOLDER_NAME, FOLDER_NAME);
+  private static final String LOCAL_URI = String.format("^(~/|/|//[\\w-]+/|[A-Za-z]:/)(%s/)*%s%s",
+    FOLDER_NAME, FOLDER_NAME, FILE_EXTENSION);
+  // 同上，但反斜线
+  // private static final String BACKSLASH_LOCAL_URI = String.format("^(~\\\\\\\\|\\\\\\\\\\\\\\\\[\\w-]+\\\\\\\\|%s:\\\\\\\\)(%s\\\\\\\\)*%s(\\\\\\\\)?", SCHEME, FOLDER_NAME, FOLDER_NAME);
+  private static final String BACKSLASH_LOCAL_URI = String.format("^(~\\\\\\\\|\\\\\\\\\\\\\\\\[\\w-]+\\\\\\\\|[A-Za-z]:\\\\\\\\)(%s\\\\\\\\)*%s%s",
+    FOLDER_NAME, FOLDER_NAME, FILE_EXTENSION);
+
+  // 匹配Windows驱动器格式，如D:\\
   private static final String DISK_URI = "^[A-Za-z]:(/|\\\\)";
+
 //  private static final Pattern URI_PATTERN = Pattern.compile(URI_REGEX + '|' + IP_REGEX + '|' + LOCAL_URI + '|' + DISK_URI + '|' + BACKSLASH_LOCAL_URI);
-  private static final Pattern URI_PATTERN = Pattern.compile(IP_REGEX + '|' + LOCAL_URI + '|' + DISK_URI + '|' + BACKSLASH_LOCAL_URI);
+  private static final Pattern URI_PATTERN = Pattern.compile(LOCAL_URI + '|' + DISK_URI + '|' + BACKSLASH_LOCAL_URI);
+  // 格式化日期
   private static final Pattern DATE_FORMAT_PATTERN = Pattern.compile("(dd/MM/(yyyy|yy)|MM/dd/(yyyy|yy)|(yyyy|yy)/MM/dd)\\s?.*", Pattern.CASE_INSENSITIVE);
+
   private static final Set<String> MIMETYPES = new HashSet<>(Arrays.asList(
     "audio/aac",
     "application/x-abiword",
@@ -176,7 +201,7 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
 
   private void checkVariable(VariableTree tree) {
     // 检查变量名是否匹配文件名或路径模式
-    log.info("checkVariable:{}",tree.simpleName());
+    log.debug("checkVariable:{}",tree.simpleName());
     if (isFileNameVariable(tree.simpleName())) {
       log.info("checkVariable isFileNameVariable");
       checkExpression(tree.initializer());
@@ -187,7 +212,7 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
   private void checkAssignment(AssignmentExpressionTree tree) {
 //    log.info("checkAssignment:{}", tree);
     // 检查赋值表达式是否涉及文件名或路径变量，并且不属于注释的一部分
-    if (isFileNameVariable(getVariableIdentifier(tree)) && !isPartOfAnnotation(tree)) {
+    if (!isPartOfAnnotation(tree)) {
       log.info("checkAssignment isFileNameVariable");
       checkExpression(tree.expression());
     }
@@ -273,9 +298,10 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
     if (expr != null) {
       if (isHardcodedURI(expr)) {
         reportHardcodedURI(expr);
-      } else {
-        reportStringConcatenationWithPathDelimiter(expr);
       }
+//      } else {
+//        reportStringConcatenationWithPathDelimiter(expr);
+//      }
     }
   }
 
@@ -308,7 +334,8 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
     if (DATE_FORMAT_PATTERN.matcher(stringLiteral.strip()).find()) {
       return false;
     }
-
+    /*
+    // MIME类型过滤
     if (MIME_PATTERN.matcher(stringLiteral.toLowerCase().strip()).find()) {
       for(String m : MIMETYPES) {
         if(stringLiteral.toLowerCase().strip().contains(m.toLowerCase())) {
@@ -320,7 +347,7 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
 //      }
 //      return false;
     }
-
+     */
     return URI_PATTERN.matcher(stringLiteral).find();
   }
 

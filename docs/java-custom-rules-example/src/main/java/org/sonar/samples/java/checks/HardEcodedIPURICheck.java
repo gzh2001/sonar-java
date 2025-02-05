@@ -30,6 +30,8 @@ public class HardEcodedIPURICheck extends IssuableSubscriptionVisitor {
   // 路径分隔符
   private static final Pattern PATH_DELIMETERS_PATTERN = Pattern.compile("\"/\"|\"//\"|\"\\\\\\\\\"|\"\\\\\\\\\\\\\\\\\"");
   private static final Pattern URI_PATTERN = Pattern.compile(IP_REGEX);
+  // 文件变量特征值
+  private static final Pattern VARIABLE_NAME_PATTERN = Pattern.compile("filename|path|pureIP|website", Pattern.CASE_INSENSITIVE);
 
 
   @Override
@@ -59,14 +61,18 @@ public class HardEcodedIPURICheck extends IssuableSubscriptionVisitor {
     }
   }
 
+  private static boolean isFileNameVariable(@Nullable IdentifierTree variable) {
+    return variable != null && VARIABLE_NAME_PATTERN.matcher(variable.name()).find();
+  }
+
   private void checkVariable(VariableTree tree) {
     // 检查变量名是否匹配文件名或路径模式
-    log.info("checkVariable:{}",tree.simpleName());
-//    if (isFileNameVariable(tree.simpleName())) {
-//      log.info("checkVariable isFileNameVariable");
-//      checkExpression(tree.initializer());
-//    }
-    checkExpression(tree.initializer());
+    log.debug("checkVariable:{}",tree.simpleName());
+    if (isFileNameVariable(tree.simpleName())) {
+      log.info("checkVariable isFileNameVariable");
+      checkExpression(tree.initializer());
+    }
+//    checkExpression(tree.initializer());
   }
 
   private void checkAssignment(AssignmentExpressionTree tree) {
