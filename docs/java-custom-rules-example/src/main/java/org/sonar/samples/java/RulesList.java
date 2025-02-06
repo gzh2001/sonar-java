@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.plugins.java.api.JavaCheck;
 import org.sonar.samples.java.checks.HardEncodedWebURICheck;
+import org.sonar.samples.java.checks.HardEcodedIPURICheck;
 
 public final class RulesList {
 
@@ -27,8 +28,12 @@ public final class RulesList {
    * These rules are going to target MAIN code only
    */
   public static List<Class<? extends JavaCheck>> getJavaChecks() {
-    return Collections.unmodifiableList(Arrays.asList(
-      HardEncodedWebURICheck.class));
+    return Collections.unmodifiableList(
+      Arrays.asList(
+        HardEncodedWebURICheck.class,
+        HardEcodedIPURICheck.class
+      )
+    );
   }
 
   /**
