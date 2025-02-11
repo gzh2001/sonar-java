@@ -53,10 +53,10 @@ public class HardEcodedIPURICheck extends IssuableSubscriptionVisitor {
   }
 
   private void checkNewClassTree(NewClassTree nct) {
-//    log.info("checkNewClassTree");
+//    log.debug("checkNewClassTree");
     // 检查新类实例是否匹配定义的构造函数匹配器
     if (!MATCHERS.contains(nct.symbolType().name())) {
-      log.info("checkNewClassTree MATCHERS.contains");
+      log.debug("checkNewClassTree MATCHERS.contains");
       nct.arguments().forEach(this::checkExpression);
     }
   }
@@ -69,17 +69,17 @@ public class HardEcodedIPURICheck extends IssuableSubscriptionVisitor {
     // 检查变量名是否匹配文件名或路径模式
     log.debug("checkVariable:{}",tree.simpleName());
 //    if (isFileNameVariable(tree.simpleName())) {
-//      log.info("checkVariable isFileNameVariable");
+//      log.debug("checkVariable isFileNameVariable");
 //      checkExpression(tree.initializer());
 //    }
     checkExpression(tree.initializer());
   }
 
   private void checkAssignment(AssignmentExpressionTree tree) {
-//    log.info("checkAssignment:{}", tree);
+//    log.debug("checkAssignment:{}", tree);
     // 检查赋值表达式是否涉及文件名或路径变量，并且不属于注释的一部分
     if (!isPartOfAnnotation(tree)) {
-      log.info("checkAssignment isFileNameVariable");
+      log.debug("checkAssignment isFileNameVariable");
       checkExpression(tree.expression());
     }
   }
@@ -115,7 +115,7 @@ public class HardEcodedIPURICheck extends IssuableSubscriptionVisitor {
       return false;
     }
     String stringLiteral = LiteralUtils.trimQuotes(((LiteralTree) newExpr).value());
-    log.info("====================================\n字面量={}", stringLiteral);
+    log.debug("====================================\n字面量={}", stringLiteral);
     if(stringLiteral.contains("*") || stringLiteral.contains("$")) {
       return false;
     }
