@@ -298,10 +298,9 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
     if (expr != null) {
       if (isHardcodedURI(expr)) {
         reportHardcodedURI(expr);
+      } else {
+        reportStringConcatenationWithPathDelimiter(expr);
       }
-//      } else {
-//        reportStringConcatenationWithPathDelimiter(expr);
-//      }
     }
   }
 

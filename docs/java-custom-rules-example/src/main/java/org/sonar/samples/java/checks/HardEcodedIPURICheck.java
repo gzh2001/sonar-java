@@ -101,8 +101,9 @@ public class HardEcodedIPURICheck extends IssuableSubscriptionVisitor {
     if (expr != null) {
       if (isHardcodedURI(expr)) {
         reportHardcodedURI(expr);
-      } else {
-        reportStringConcatenationWithPathDelimiter(expr);
+//      } else {
+//          移除分隔符检测
+//        reportStringConcatenationWithPathDelimiter(expr);
       }
     }
   }
