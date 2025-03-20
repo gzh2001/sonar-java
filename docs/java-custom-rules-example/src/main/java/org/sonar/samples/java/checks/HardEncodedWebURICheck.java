@@ -202,10 +202,11 @@ public class HardEncodedWebURICheck extends IssuableSubscriptionVisitor {
   private void checkVariable(VariableTree tree) {
     // 检查变量名是否匹配文件名或路径模式
     log.debug("checkVariable:{}",tree.simpleName());
-    if (isFileNameVariable(tree.simpleName())) {
-      log.debug("checkVariable isFileNameVariable");
-      checkExpression(tree.initializer());
-    }
+//    if (isFileNameVariable(tree.simpleName())) {
+//      log.debug("checkVariable isFileNameVariable");
+//      checkExpression(tree.initializer());
+//    }
+    checkExpression(tree.initializer());
 //    checkExpression(tree.initializer());
   }
 
