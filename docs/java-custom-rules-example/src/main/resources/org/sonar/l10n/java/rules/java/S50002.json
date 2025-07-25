@@ -1,0 +1,29 @@
+{
+  "title": "文件流需要被关闭",
+  "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant\/Issue",
+    "constantCost": "20min"
+  },
+  "tags": [
+    "android",
+    "cert"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-1075",
+  "sqKey": "S50002",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "securityStandards": {
+    "CERT": [
+      "MSC03-J."
+    ]
+  }
+}
