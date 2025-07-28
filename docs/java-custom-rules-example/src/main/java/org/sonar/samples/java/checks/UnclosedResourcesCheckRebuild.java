@@ -176,7 +176,7 @@ public class UnclosedResourcesCheckRebuild extends SECheck {
     super.scanFile(context);
   }
 
-  @Override
+//  @Override
   public void init(MethodTree methodTree, @NonNull ControlFlowGraph cfg) {
     this.visitedMethodOwnerType = methodTree.symbol().owner().type();
   }

@@ -11,6 +11,7 @@ import java.util.List;
 import org.sonar.plugins.java.api.JavaCheck;
 import org.sonar.samples.java.checks.HardEncodedWebURICheck;
 import org.sonar.samples.java.checks.HardEcodedIPURICheck;
+import org.sonar.samples.java.checks.UnclosedResourcesCheckRebuild;
 
 public final class RulesList {
 
@@ -31,7 +32,8 @@ public final class RulesList {
     return Collections.unmodifiableList(
       Arrays.asList(
         HardEncodedWebURICheck.class,
-        HardEcodedIPURICheck.class
+        HardEcodedIPURICheck.class,
+        UnclosedResourcesCheckRebuild.class
       )
     );
   }

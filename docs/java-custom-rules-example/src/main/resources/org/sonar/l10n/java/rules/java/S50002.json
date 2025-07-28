@@ -1,29 +1,37 @@
 {
-  "title": "文件流需要被关闭",
-  "type": "CODE_SMELL",
+  "title": "文件流需要关闭",
+  "type": "BUG",
   "code": {
     "impacts": {
-      "MAINTAINABILITY": "LOW"
+      "RELIABILITY": "HIGH"
     },
-    "attribute": "CONVENTIONAL"
+    "attribute": "COMPLETE"
   },
   "status": "ready",
   "remediation": {
     "func": "Constant\/Issue",
-    "constantCost": "20min"
+    "constantCost": "5min"
   },
   "tags": [
-    "android",
-    "cert"
+    "cwe",
+    "leak",
+    "denial-of-service",
+    "cert",
+    "symbolic-execution"
   ],
-  "defaultSeverity": "Minor",
-  "ruleSpecification": "RSPEC-1075",
-  "sqKey": "S50002",
-  "scope": "Main",
-  "quickfix": "unknown",
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-2095",
+  "sqKey": "S2095",
+  "scope": "All",
   "securityStandards": {
     "CERT": [
-      "MSC03-J."
+      "FIO04-J.",
+      "FIO42-C."
+    ],
+    "CWE": [
+      459,
+      772
     ]
-  }
+  },
+  "quickfix": "infeasible"
 }
