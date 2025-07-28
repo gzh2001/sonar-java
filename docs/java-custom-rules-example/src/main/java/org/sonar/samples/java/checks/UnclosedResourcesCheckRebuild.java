@@ -19,28 +19,13 @@
  */
 package org.sonar.samples.java.checks;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.regex.Pattern;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.java.model.SEExpressionUtils;
-import org.sonar.java.se.CheckerContext;
-import org.sonar.java.se.ExplodedGraph;
-import org.sonar.java.se.Flow;
-import org.sonar.java.se.FlowComputation;
-import org.sonar.java.se.ProgramState;
-import org.sonar.java.se.SymbolicValueFactory;
+import org.sonar.java.se.*;
 import org.sonar.java.se.checks.SECheck;
 import org.sonar.java.se.constraint.Constraint;
 import org.sonar.java.se.constraint.ConstraintManager;
@@ -51,29 +36,20 @@ import org.sonar.plugins.java.api.cfg.ControlFlowGraph;
 import org.sonar.plugins.java.api.semantic.MethodMatchers;
 import org.sonar.plugins.java.api.semantic.Symbol;
 import org.sonar.plugins.java.api.semantic.Type;
-import org.sonar.plugins.java.api.tree.Arguments;
-import org.sonar.plugins.java.api.tree.AssignmentExpressionTree;
-import org.sonar.plugins.java.api.tree.BaseTreeVisitor;
-import org.sonar.plugins.java.api.tree.ExpressionTree;
-import org.sonar.plugins.java.api.tree.IdentifierTree;
-import org.sonar.plugins.java.api.tree.ListTree;
-import org.sonar.plugins.java.api.tree.MemberSelectExpressionTree;
-import org.sonar.plugins.java.api.tree.MethodInvocationTree;
-import org.sonar.plugins.java.api.tree.MethodTree;
-import org.sonar.plugins.java.api.tree.NewClassTree;
-import org.sonar.plugins.java.api.tree.ReturnStatementTree;
-import org.sonar.plugins.java.api.tree.Tree;
-import org.sonar.plugins.java.api.tree.TryStatementTree;
+import org.sonar.plugins.java.api.tree.*;
 import org.sonarsource.analyzer.commons.collections.ListUtils;
 
-//import static org.sonar.java.se.checks.UnclosedResourcesCheck.ResourceConstraint.CLOSED;
-//import static org.sonar.java.se.checks.UnclosedResourcesCheck.ResourceConstraint.OPEN;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.regex.Pattern;
 
 import static org.sonar.samples.java.checks.UnclosedResourcesCheckRebuild.ResourceConstraint.CLOSED;
 import static org.sonar.samples.java.checks.UnclosedResourcesCheckRebuild.ResourceConstraint.OPEN;
 
 
 @Rule(key = "S50002")
+@Slf4j
 public class UnclosedResourcesCheckRebuild extends SECheck {
 
   private static final List<Class<? extends Constraint>> RESOURCE_CONSTRAINT_DOMAIN = Collections.singletonList(ResourceConstraint.class);
@@ -178,6 +154,7 @@ public class UnclosedResourcesCheckRebuild extends SECheck {
 
 //  @Override
   public void init(MethodTree methodTree, @NonNull ControlFlowGraph cfg) {
+    log.info("==================Custom Rule Enable==================\n");
     this.visitedMethodOwnerType = methodTree.symbol().owner().type();
   }
 
