@@ -20,8 +20,8 @@
     "symbolic-execution"
   ],
   "defaultSeverity": "Blocker",
-  "ruleSpecification": "RSPEC-2095",
-  "sqKey": "S2095",
+  "ruleSpecification": "RSPEC-50002",
+  "sqKey": "S50002",
   "scope": "All",
   "securityStandards": {
     "CERT": [
