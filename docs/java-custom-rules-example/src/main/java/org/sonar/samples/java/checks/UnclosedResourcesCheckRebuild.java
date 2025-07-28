@@ -1,3 +1,22 @@
+/*
+ * SonarQube Java
+ * Copyright (C) 2012-2024 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 package org.sonar.samples.java.checks;
 
 import java.util.ArrayList;
@@ -10,6 +29,8 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+
+import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -20,7 +41,6 @@ import org.sonar.java.se.Flow;
 import org.sonar.java.se.FlowComputation;
 import org.sonar.java.se.ProgramState;
 import org.sonar.java.se.SymbolicValueFactory;
-import org.sonar.samples.java.checks.CheckerTreeNodeVisitor;
 import org.sonar.java.se.checks.SECheck;
 import org.sonar.java.se.constraint.Constraint;
 import org.sonar.java.se.constraint.ConstraintManager;
@@ -46,6 +66,9 @@ import org.sonar.plugins.java.api.tree.Tree;
 import org.sonar.plugins.java.api.tree.TryStatementTree;
 import org.sonarsource.analyzer.commons.collections.ListUtils;
 
+//import static org.sonar.java.se.checks.UnclosedResourcesCheck.ResourceConstraint.CLOSED;
+//import static org.sonar.java.se.checks.UnclosedResourcesCheck.ResourceConstraint.OPEN;
+
 import static org.sonar.samples.java.checks.UnclosedResourcesCheckRebuild.ResourceConstraint.CLOSED;
 import static org.sonar.samples.java.checks.UnclosedResourcesCheckRebuild.ResourceConstraint.OPEN;
 
@@ -53,7 +76,7 @@ import static org.sonar.samples.java.checks.UnclosedResourcesCheckRebuild.Resour
 @Rule(key = "S50002")
 public class UnclosedResourcesCheckRebuild extends SECheck {
 
-  private static final List<Class<? extends Constraint>> RESOURCE_CONSTRAINT_DOMAIN = Collections.singletonList(UnclosedResourcesCheckRebuild.ResourceConstraint.class);
+  private static final List<Class<? extends Constraint>> RESOURCE_CONSTRAINT_DOMAIN = Collections.singletonList(ResourceConstraint.class);
 
   public enum ResourceConstraint implements Constraint {
     OPEN, CLOSED;
@@ -147,21 +170,21 @@ public class UnclosedResourcesCheckRebuild extends SECheck {
   );
 
   @Override
-  public void scanFile(JavaFileScannerContext context) {
+  public void scanFile(@NonNull JavaFileScannerContext context) {
     this.visitedTryWithResourcesTrees.clear();
     this.knownResources.clear();
     super.scanFile(context);
   }
 
-
-  public void init(MethodTree methodTree, ControlFlowGraph cfg) {
+  @Override
+  public void init(MethodTree methodTree, @NonNull ControlFlowGraph cfg) {
     this.visitedMethodOwnerType = methodTree.symbol().owner().type();
   }
 
   @Override
-  public ProgramState checkPreStatement(CheckerContext context, Tree syntaxNode) {
+  public ProgramState checkPreStatement(@NonNull CheckerContext context, @NonNull Tree syntaxNode) {
     collectTryWithResources(syntaxNode);
-    final UnclosedResourcesCheckRebuild.PreStatementVisitor visitor = new UnclosedResourcesCheckRebuild.PreStatementVisitor(context);
+    final PreStatementVisitor visitor = new PreStatementVisitor(context);
     syntaxNode.accept(visitor);
     return visitor.programState;
   }
@@ -171,7 +194,7 @@ public class UnclosedResourcesCheckRebuild extends SECheck {
       TryStatementTree tryStatementTree = (TryStatementTree) syntaxNode;
       ListTree<Tree> resourceList = tryStatementTree.resourceList();
       if (!resourceList.isEmpty() && visitedTryWithResourcesTrees.add(tryStatementTree)) {
-        knownResources.addAll(UnclosedResourcesCheckRebuild.ResourcesCollector.collect(resourceList));
+        knownResources.addAll(ResourcesCollector.collect(resourceList));
       }
     }
   }
@@ -181,25 +204,25 @@ public class UnclosedResourcesCheckRebuild extends SECheck {
     private final Set<Tree> resources = new HashSet<>();
 
     static Set<Tree> collect(ListTree<Tree> resources) {
-      UnclosedResourcesCheckRebuild.ResourcesCollector collector = new UnclosedResourcesCheckRebuild.ResourcesCollector();
+      ResourcesCollector collector = new ResourcesCollector();
       resources.accept(collector);
       return collector.resources;
     }
 
     @Override
-    public void visitIdentifier(IdentifierTree tree) {
+    public void visitIdentifier(@NonNull IdentifierTree tree) {
       resources.add(tree);
       // almost a leaf, no need to call the super implementation
     }
 
     @Override
-    public void visitMethodInvocation(MethodInvocationTree tree) {
+    public void visitMethodInvocation(@NonNull MethodInvocationTree tree) {
       resources.add(tree);
       super.visitMethodInvocation(tree);
     }
 
     @Override
-    public void visitNewClass(NewClassTree tree) {
+    public void visitNewClass(@NonNull NewClassTree tree) {
       resources.add(tree);
       super.visitNewClass(tree);
     }
@@ -210,14 +233,14 @@ public class UnclosedResourcesCheckRebuild extends SECheck {
   }
 
   @Override
-  public ProgramState checkPostStatement(CheckerContext context, Tree syntaxNode) {
-    final UnclosedResourcesCheckRebuild.PostStatementVisitor visitor = new UnclosedResourcesCheckRebuild.PostStatementVisitor(context);
+  public ProgramState checkPostStatement(@NonNull CheckerContext context, Tree syntaxNode) {
+    final PostStatementVisitor visitor = new PostStatementVisitor(context);
     syntaxNode.accept(visitor);
     return visitor.programState;
   }
 
   @Override
-  public void checkEndOfExecutionPath(CheckerContext context, ConstraintManager constraintManager) {
+  public void checkEndOfExecutionPath(CheckerContext context, @NonNull ConstraintManager constraintManager) {
     if (context.getState().exitingOnRuntimeException()) {
       return;
     }
@@ -231,7 +254,7 @@ public class UnclosedResourcesCheckRebuild extends SECheck {
     Set<SymbolicValue> svToReport = new HashSet<>(openSymbolicValues);
     // report only outermost OPEN symbolic value
     for (SymbolicValue openSymbolicValue : openSymbolicValues) {
-      if (openSymbolicValue instanceof UnclosedResourcesCheckRebuild.ResourceWrapperSymbolicValue) {
+      if (openSymbolicValue instanceof ResourceWrapperSymbolicValue) {
         svToReport.remove(openSymbolicValue.wrappedValue());
       }
     }
@@ -322,7 +345,7 @@ public class UnclosedResourcesCheckRebuild extends SECheck {
 
     @Override
     public SymbolicValue createSymbolicValue() {
-      return new UnclosedResourcesCheckRebuild.ResourceWrapperSymbolicValue(value);
+      return new ResourceWrapperSymbolicValue(value);
     }
 
   }
@@ -339,7 +362,7 @@ public class UnclosedResourcesCheckRebuild extends SECheck {
     }
 
     @Override
-    public void visitNewClass(NewClassTree syntaxNode) {
+    public void visitNewClass(@NonNull NewClassTree syntaxNode) {
       if (isOpeningResource(syntaxNode)) {
         List<ProgramState.SymbolicValueSymbol> arguments = ListUtils.reverse(programState.peekValuesAndSymbols(syntaxNode.arguments().size()));
         Iterator<ProgramState.SymbolicValueSymbol> iterator = arguments.iterator();
@@ -349,7 +372,7 @@ public class UnclosedResourcesCheckRebuild extends SECheck {
           }
           ProgramState.SymbolicValueSymbol argument = iterator.next();
           if (shouldWrapArgument(argument, argumentTree)) {
-            constraintManager.setValueFactory(new UnclosedResourcesCheckRebuild.WrappedValueFactory(argument.symbolicValue()));
+            constraintManager.setValueFactory(new WrappedValueFactory(argument.symbolicValue()));
             break;
           }
           if (shouldCloseArgument(argument)){
@@ -362,18 +385,18 @@ public class UnclosedResourcesCheckRebuild extends SECheck {
     }
 
     private boolean shouldWrapArgument(ProgramState.SymbolicValueSymbol argument, ExpressionTree argumentTree) {
-      UnclosedResourcesCheckRebuild.ResourceConstraint argConstraint = programState.getConstraint(argument.symbolicValue(), UnclosedResourcesCheckRebuild.ResourceConstraint.class);
+      ResourceConstraint argConstraint = programState.getConstraint(argument.symbolicValue(), ResourceConstraint.class);
       return (argConstraint == OPEN && argument.symbol() != null)
         || (argConstraint == null && isCloseable(argumentTree));
     }
 
     private boolean shouldCloseArgument(ProgramState.SymbolicValueSymbol argument) {
-      UnclosedResourcesCheckRebuild.ResourceConstraint argConstraint = programState.getConstraint(argument.symbolicValue(), UnclosedResourcesCheckRebuild.ResourceConstraint.class);
+      ResourceConstraint argConstraint = programState.getConstraint(argument.symbolicValue(), ResourceConstraint.class);
       return argConstraint == OPEN;
     }
 
     @Override
-    public void visitReturnStatement(ReturnStatementTree syntaxNode) {
+    public void visitReturnStatement(@NonNull ReturnStatementTree syntaxNode) {
       SymbolicValue currentVal = programState.peekValue();
       if (currentVal != null) {
         final ExpressionTree expression = syntaxNode.expression();
@@ -446,11 +469,11 @@ public class UnclosedResourcesCheckRebuild extends SECheck {
     }
 
     private void closeResource(@Nullable final SymbolicValue target) {
-      if (target instanceof UnclosedResourcesCheckRebuild.ResourceWrapperSymbolicValue) {
+      if (target instanceof ResourceWrapperSymbolicValue) {
         closeResource(target.wrappedValue());
       }
       if (target != null) {
-        UnclosedResourcesCheckRebuild.ResourceConstraint oConstraint = programState.getConstraint(target, UnclosedResourcesCheckRebuild.ResourceConstraint.class);
+        ResourceConstraint oConstraint = programState.getConstraint(target, ResourceConstraint.class);
         if (oConstraint != null) {
           programState = programState.addConstraintTransitively(target, CLOSED);
         }
@@ -458,7 +481,7 @@ public class UnclosedResourcesCheckRebuild extends SECheck {
     }
 
     @Override
-    public void visitIdentifier(IdentifierTree tree) {
+    public void visitIdentifier(@NonNull IdentifierTree tree) {
       // close resource as soon as it is encountered in the resource declaration
       if (isWithinTryHeader(tree)) {
         Symbol symbol = tree.symbol();
@@ -483,12 +506,12 @@ public class UnclosedResourcesCheckRebuild extends SECheck {
     }
 
     private boolean passedCloseableParameter(SymbolicValue resource) {
-      return resource instanceof UnclosedResourcesCheckRebuild.ResourceWrapperSymbolicValue resourceWrapperSymbolicValue
-        && programState.getConstraint(resourceWrapperSymbolicValue.dependent, UnclosedResourcesCheckRebuild.ResourceConstraint.class) == null;
+      return resource instanceof ResourceWrapperSymbolicValue resourceWrapperSymbolicValue
+        && programState.getConstraint(resourceWrapperSymbolicValue.dependent, ResourceConstraint.class) == null;
     }
 
     @Override
-    public void visitMethodInvocation(MethodInvocationTree syntaxNode) {
+    public void visitMethodInvocation(@NonNull MethodInvocationTree syntaxNode) {
       if (methodOpeningResource(syntaxNode)) {
         SymbolicValue peekedValue = Objects.requireNonNull(programState.peekValue());
         programState = programState.addConstraintTransitively(peekedValue, OPEN);
@@ -527,4 +550,3 @@ public class UnclosedResourcesCheckRebuild extends SECheck {
     }
   }
 }
-
