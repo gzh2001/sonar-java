@@ -154,7 +154,7 @@ public class UnclosedResourcesCheckRebuild extends SECheck {
 
 //  @Override
   public void init(MethodTree methodTree, @NonNull ControlFlowGraph cfg) {
-    log.info("==================Custom Rule Enable==================\n");
+    log.debug("==================Custom Rule Enable==================\n");
     this.visitedMethodOwnerType = methodTree.symbol().owner().type();
   }
 
