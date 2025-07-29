@@ -498,6 +498,7 @@ public class UnclosedResourcesCheckRebuild extends SECheck {
     }
 
     private boolean methodOpeningResource(MethodInvocationTree mit) {
+      log.debug("==================判断类型==================\n");
       return !isWithinTryHeader(mit)
         && !excludedByRuleOption(mit.symbolType())
         && !handledByFramework(mit)
