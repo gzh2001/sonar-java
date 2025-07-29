@@ -21,6 +21,8 @@ package org.sonar.samples.java.checks;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.apache.commons.lang3.StringUtils;
 import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
@@ -51,8 +53,9 @@ import static org.sonar.samples.java.checks.UnclosedResourcesCheckRebuild.Resour
 
 
 @Rule(key = "S50002")
-@Slf4j
+//@Slf4j
 public class UnclosedResourcesCheckRebuild extends SECheck {
+  private static final Logger log = Loggers.get(UnclosedResourcesCheckRebuild.class);
 
   private static final List<Class<? extends Constraint>> RESOURCE_CONSTRAINT_DOMAIN = Collections.singletonList(ResourceConstraint.class);
 
@@ -156,7 +159,7 @@ public class UnclosedResourcesCheckRebuild extends SECheck {
 
 //  @Override
   public void init(MethodTree methodTree, @NonNull ControlFlowGraph cfg) {
-    log.debug("==================Custom Rule Enable==================\n");
+    log.info("==================Custom Rule Enable==================\n");
     this.visitedMethodOwnerType = methodTree.symbol().owner().type();
   }
 
@@ -500,7 +503,7 @@ public class UnclosedResourcesCheckRebuild extends SECheck {
     }
 
     private boolean methodOpeningResource(MethodInvocationTree mit) {
-      log.debug("==================判断类型==================\n");
+      log.info("==================判断类型==================\n");
       return !isWithinTryHeader(mit)
         && !excludedByRuleOption(mit.symbolType())
         && !handledByFramework(mit)
